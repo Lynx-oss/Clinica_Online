@@ -1,0 +1,121 @@
+
+.d-flex.min-vh-100 {
+    background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+}
+
+.card {
+    border: none;
+    backdrop-filter: blur(10px);
+}
+
+h3 {
+    color: #023e8a;
+    font-weight: 700;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card p {
+    color: #0077b6;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    border-radius: 12px;
+    border: 2px solid #90e0ef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #0077b6;
+    box-shadow: 0 0 0 0.25rem rgba(0, 119, 182, 0.15);
+    background-color: #f8fcff;
+}
+
+.form-floating label {
+    color: #0077b6;
+}
+
+.form-check-input {
+    border-color: #90e0ef;
+}
+
+.form-check-input:checked {
+    background-color: #0077b6;
+    border-color: #0077b6;
+}
+
+.form-check-label {
+    color: #023e8a;
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0077b6 0%, #023e8a 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #023e8a 0%, #001d3d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 119, 182, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.medical-icon {
+    color: #0077b6;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.shadow {
+    box-shadow: 0 10px 40px rgba(0, 119, 182, 0.15) !important;
+}
+
+@media (max-width: 576px) {
+    .card {
+        width: 95% !important;
+        margin: 1rem;
+        padding: 1.5rem !important;
+    }
+    
+    h3 {
+        font-size: 1.5rem;
+    }
+}
+
+.card {
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+hr {
+    border-top: 2px solid #90e0ef;
+    opacity: 0.3;
+}
+
+small{
+    font-size: 0.8rem;
+}
+
+.text-muted {
+    color: #6c757d !important
+}

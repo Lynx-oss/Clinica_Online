@@ -1,0 +1,298 @@
+<div class="registro-container">
+  <div class="registro-card">
+    
+    <div class="text-center mb-4">
+      <div class="medical-icon-container">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+      <h2>Crear Cuenta</h2>
+      <p class="text-muted">Completa el formulario para registrarte</p>
+    </div>
+
+    <div class="tipo-usuario-selector mb-4">
+      <button 
+        type="button"
+        class="tipo-btn"
+        [class.active]="tipoUsuario === 'paciente'"
+        (click)="cambiarTipo('paciente')"
+        [disabled]="loading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Paciente
+      </button>
+
+      <button 
+        type="button"
+        class="tipo-btn"
+        [class.active]="tipoUsuario === 'especialista'"
+        (click)="cambiarTipo('especialista')"
+        [disabled]="loading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+        Especialista
+      </button>
+
+      <button 
+        type="button"
+        class="tipo-btn"
+        [class.active]="tipoUsuario === 'admin'"
+        (click)="cambiarTipo('admin')"
+        [disabled]="loading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        Admin
+      </button>
+    </div>
+
+    <form [formGroup]="registroForm" (ngSubmit)="registrar()">
+      
+      <div class="seccion-titulo">
+        <h5> Datos Personales</h5>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Nombre *</label>
+          <input 
+            type="text" 
+            class="form-control"
+            formControlName="nombre"
+            [class.is-invalid]="hasError('nombre', 'required') || hasError('nombre', 'minlength')"
+            placeholder="Juan">
+          <div class="invalid-feedback">
+            {{ getErrorMessage('nombre') }}
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Apellido *</label>
+          <input 
+            type="text" 
+            class="form-control"
+            formControlName="apellido"
+            [class.is-invalid]="hasError('apellido', 'required') || hasError('apellido', 'minlength')"
+            placeholder="Pérez">
+          <div class="invalid-feedback">
+            {{ getErrorMessage('apellido') }}
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Edad *</label>
+          <input 
+            type="number" 
+            class="form-control"
+            formControlName="edad"
+            [class.is-invalid]="registroForm.get('edad')?.invalid && registroForm.get('edad')?.touched"
+            placeholder="25"
+            min="18"
+            max="120">
+          <div class="invalid-feedback">
+            {{ getErrorMessage('edad') }}
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">DNI *</label>
+          <input 
+            type="text" 
+            class="form-control"
+            formControlName="dni"
+            [class.is-invalid]="hasError('dni', 'required') || hasError('dni', 'pattern')"
+            placeholder="12345678"
+            maxlength="8">
+          <div class="invalid-feedback">
+            {{ registroForm.get('dni')?.hasError('pattern') ? 'DNI debe tener 7 u 8 dígitos' : getErrorMessage('dni') }}
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="mb-3" *ngIf="tipoUsuario === 'paciente'">
+        <label class="form-label">Obra Social *</label>
+        <select 
+          class="form-control"
+          formControlName="obraSocial"
+          [class.is-invalid]="hasError('obraSocial', 'required')">
+          <option value="">Selecciona tu obra social</option>
+          <option *ngFor="let os of obrasSociales" [value]="os">{{ os }}</option>
+        </select>
+        <div class="invalid-feedback">
+          {{ getErrorMessage('obraSocial') }}
+        </div>
+      </div>
+
+      <div *ngIf="tipoUsuario === 'especialista'">
+        <div class="mb-3" *ngIf="!mostrarNuevaEspecialidad">
+          <label class="form-label">Especialidad *</label>
+          <select 
+            class="form-control"
+            formControlName="especialidadSeleccionada"
+            [class.is-invalid]="hasError('especialidadSeleccionada', 'required')">
+            <option value="">Selecciona una especialidad</option>
+            <option *ngFor="let esp of especialidades" [value]="esp.nombre">
+              {{ esp.nombre }}
+            </option>
+          </select>
+          <div class="invalid-feedback">
+            {{ getErrorMessage('especialidadSeleccionada') }}
+          </div>
+        </div>
+
+        <div class="mb-3" *ngIf="mostrarNuevaEspecialidad">
+          <label class="form-label">Nueva Especialidad *</label>
+          <input 
+            type="text" 
+            class="form-control"
+            formControlName="nuevaEspecialidad"
+            [class.is-invalid]="hasError('nuevaEspecialidad', 'required')"
+            placeholder="Ej: Kinesiología">
+          <div class="invalid-feedback">
+            {{ getErrorMessage('nuevaEspecialidad') }}
+          </div>
+        </div>
+
+        <button 
+          type="button"
+          class="btn btn-sm btn-outline-secondary mb-3"
+          (click)="toggleNuevaEspecialidad()"
+          [disabled]="loading">
+          {{ mostrarNuevaEspecialidad ? '← Seleccionar de la lista' : '+ Agregar nueva especialidad' }}
+        </button>
+      </div>
+
+      <div class="seccion-titulo mt-4">
+        <h5>Datos de Acceso</h5>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email *</label>
+        <input 
+          type="email" 
+          class="form-control"
+          formControlName="email"
+          [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+          placeholder="ejemplo@mail.com">
+        <div class="invalid-feedback">
+          {{ getErrorMessage('email') }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contraseña *</label>
+          <input 
+            type="password" 
+            class="form-control"
+            formControlName="password"
+            [class.is-invalid]="hasError('password', 'required') || hasError('password', 'minlength')"
+            placeholder="••••••••">
+          <div class="invalid-feedback">
+            {{ getErrorMessage('password') }}
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Confirmar Contraseña *</label>
+          <input 
+            type="password" 
+            class="form-control"
+            formControlName="confirmPassword"
+            [class.is-invalid]="(hasError('confirmPassword', 'required') || registroForm.hasError('passwordsMismatch')) && registroForm.get('confirmPassword')?.touched"
+            placeholder="••••••••">
+          <div class="invalid-feedback">
+            {{ registroForm.hasError('passwordsMismatch') ? 'Las contraseñas no coinciden' : 'Este campo es obligatorio' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="seccion-titulo mt-4">
+        <h5> {{ tipoUsuario === 'paciente' ? 'Imágenes de Perfil (2 requeridas)' : 'Imagen de Perfil' }}</h5>
+      </div>
+
+      <div class="row">
+        <div [class]="tipoUsuario === 'paciente' ? 'col-md-6 mb-3' : 'col-12 mb-3'">
+          <label class="form-label">Imagen {{ tipoUsuario === 'paciente' ? '1' : 'de perfil' }} *</label>
+          <div class="upload-container">
+            <input 
+              type="file" 
+              class="form-control"
+              (change)="onFileSelected($event, 1)"
+              accept="image/*"
+              [disabled]="loading"
+              #fileInput1>
+            
+            <div class="preview-container" *ngIf="imagen1Preview">
+              <img [src]="imagen1Preview" alt="Preview 1">
+              <button 
+                type="button" 
+                class="btn-remove-img"
+                (click)="imagen1 = null; imagen1Preview = null; fileInput1.value = ''"
+                [disabled]="loading">
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3" *ngIf="tipoUsuario === 'paciente'">
+          <label class="form-label">Imagen 2 *</label>
+          <div class="upload-container">
+            <input 
+              type="file" 
+              class="form-control"
+              (change)="onFileSelected($event, 2)"
+              accept="image/*"
+              [disabled]="loading"
+              #fileInput2>
+            
+            <div class="preview-container" *ngIf="imagen2Preview">
+              <img [src]="imagen2Preview" alt="Preview 2">
+              <button 
+                type="button" 
+                class="btn-remove-img"
+                (click)="imagen2 = null; imagen2Preview = null; fileInput2.value = ''"
+                [disabled]="loading">
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button 
+          type="submit" 
+          class="btn btn-primary flex-grow-1"
+          [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Registrando...' : 'Registrarse' }}
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-outline-secondary"
+          (click)="volver()"
+          [disabled]="loading">
+          Cancelar
+        </button>
+      </div>
+
+      <div class="text-center mt-3">
+        <p class="mb-0">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
+      </div>
+
+    </form>
+  </div>
+</div>

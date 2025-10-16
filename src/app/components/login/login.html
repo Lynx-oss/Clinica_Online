@@ -1,0 +1,34 @@
+<div class="d-flex justify-content-end align-items-center min-vh-100 pe-5">
+  <div class="card p-4 shadow" style="border-radius: 40px; width: 400px;">
+    
+    <h3 class="text-center mb-4">Iniciar Sesión</h3>
+    <form>
+      <div class="form-floating mb-3">
+        <input type="email" class="form-control" id="floatingInput" placeholder="email" [(ngModel)]="email" name="email" [disabled]="loading" required>
+        <label for="floatingInput">Email</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" [(ngModel)] = "password" name="password" [disabled]="loading" required (keyup.enter)="login()">
+        <label for="floatingPassword">Clave</label>
+      </div>
+
+      
+
+      <button type="submit" class="btn btn-primary w-100" [disabled]="loading" ><span> {{ loading ? 'Ingresando...' : 'Ingresar' }}</span></button>
+      <div class="mb-3">
+        <p class="text-center small text-muted mb-2">Acesso rapido: </p>
+        <div class="d-flex gap-2 justify-content-center">
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="quickLogin('admin')" [disabled] ="loading">Admin</button>
+          <button type="button" class="btn btn-sm btn-outline-success" (click)="quickLogin('paciente')" [disabled]="loading">Paciente</button>
+          <button type="button" class ="btn btn-sm btn-outline-info" (click)="quickLogin('especialista')" [disabled]="loading">Especialista</button>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center align-items-center mt-3">
+        <p class="mb-0 me-2">¿No tiene cuenta?</p>
+        <a routerLink="/registro">Cree una aca</a>
+      </div>
+    </form>
+  </div>
+</div>

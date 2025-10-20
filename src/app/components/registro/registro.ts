@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
@@ -12,7 +12,11 @@ import { SupabaseService } from '../../services/supabase.service';
   templateUrl: './registro.html',
   styleUrl: './registro.css'
 })
-export class Registro {
+export class Registro implements OnInit{
+  @Input() esModal: boolean = false;
+  @Input() mostrarTipoAdmin: boolean = false;
+  @Output() registroExitoso = new EventEmitter<void>();
+  @Output() cancelar = new EventEmitter<void>();
   registroForm!: FormGroup;
   tipoUsuario: 'paciente' | 'especialista' | 'admin' = 'paciente';
 

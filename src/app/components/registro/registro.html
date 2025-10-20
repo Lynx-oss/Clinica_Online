@@ -1,7 +1,7 @@
-<div class="registro-container">
+<div class="registro-container" [class.is-modal] = "esModal" >
   <div class="registro-card">
     
-    <div class="text-center mb-4">
+    <div class="text-center mb-4" *ngIf="!esModal">
       <div class="medical-icon-container">
         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
@@ -41,6 +41,7 @@
       </button>
 
       <button 
+      *ngIf="mostrarTipoAdmin"
         type="button"
         class="tipo-btn"
         [class.active]="tipoUsuario === 'admin'"
@@ -289,7 +290,7 @@
         </button>
       </div>
 
-      <div class="text-center mt-3">
+      <div class="text-center mt-3" *ngIf="!esModal">
         <p class="mb-0">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
       </div>
 

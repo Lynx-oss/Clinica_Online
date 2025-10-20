@@ -81,12 +81,10 @@ export class Login {
           showConfirmButton: false
         })
 
+        this.router.navigate(['/home'])
 
-        if(profile.role === 'admin') {
-          this.router.navigate(['/usuarios']);
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
+
+        
       } catch (error: any) {
         console.error('error en login: ', error);
 

@@ -309,3 +309,35 @@ a:hover {
 .mb-4 {
   margin-bottom: 1.5rem;
 }
+
+.registro-container.is-modal {
+  min-height: auto;
+  background: transparent;
+  padding: 0;
+}
+
+.registro-container.is-modal .registro-card {
+  border-radius: 0;
+  box-shadow: none;
+  max-width: 100%;
+}
+
+.tipo-usuario-selector {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.tipo-usuario-selector:has(button:nth-child(3)) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.tipo-usuario-selector:not(:has(button:nth-child(3))) {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 768px) {
+  .tipo-usuario-selector,
+  .tipo-usuario-selector:has(button:nth-child(3)) {
+    grid-template-columns: 1fr;
+  }
+}

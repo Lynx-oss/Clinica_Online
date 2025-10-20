@@ -1,1 +1,110 @@
-<p>usuarios works!</p>
+<div class="usuarios-container">
+  <nav class="navbar">
+    <div class="navbar-content">
+      <h1> Gestión de Usuarios</h1>
+      <div class="navbar-actions">
+        <button class="btn-secondary" (click)="volverAlHome()">← Volver al Home</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content">
+    <div class="filters-section">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Buscar por nombre, email o DNI..."
+          [(ngModel)]="filtroBusqueda"
+          (ngModelChange)="aplicarFiltros()">
+      </div>
+
+      <select [(ngModel)]="filtroRole" (ngModelChange)="aplicarFiltros()" class="filter-select">
+        <option value="todos">Todos los roles</option>
+        <option value="paciente">Pacientes</option>
+        <option value="especialista">Especialistas</option>
+        <option value="admin">Administradores</option>
+      </select>
+
+      <button class="btn-primary" (click)="abrirModalCrear()">
+        + Crear Usuario
+      </button>
+    </div>
+
+    <div class="table-container" *ngIf="!loading">
+      <table>
+        <thead>
+          <tr>
+            <th>Imagen</th>
+            <th>Nombre Completo</th>
+            <th>Email</th>
+            <th>DNI</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuariosFiltrados">
+            <td>
+              <div class="user-avatar">
+                <img [src]="usuario.imagen_perfil_1" *ngIf="usuario.imagen_perfil_1"   alt="usuario.imagen">
+                <div class="avatar-placeholder" *ngIf="!usuario.imagen_perfil_1">
+                  {{ usuario.nombre.charAt(0)}}{{ usuario.apellido.charAt(0)}}
+                </div>
+              </div>
+            </td>
+            <td>{{ usuario.nombre }} {{ usuario.apellido }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.dni }}</td>
+            <td>
+              <span [class]="getRoleBadgeClass(usuario.role)">
+                {{ usuario.role }}
+              </span>
+            </td>
+            <td>
+              <span [class]="getApprovedBadgeClass(usuario.approved)">
+                {{ usuario.approved ? 'Habilitado' : 'Deshabilitado' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button 
+                  *ngIf="usuario.role === 'especialista'"
+                  [class]="usuario.approved ? 'btn-danger-sm' : 'btn-success-sm'"
+                  (click)="toggleAprobacion(usuario)">
+                  {{ usuario.approved ? 'Deshabilitar' : 'Habilitar' }}
+                </button>
+                <button 
+                  class="btn-danger-sm"
+                  (click)="eliminarUsuario(usuario)"
+                  [disabled]="usuario.id === currentUser?.id">
+                  Eliminar
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="usuariosFiltrados.length === 0" class="no-results">
+        No se encontraron usuarios
+      </p>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando usuarios...</p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarModalCrear" (click)="cerrarModalCrear()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-registro
+        [esModal]="true"
+        [mostrarTipoAdmin]="true"
+        (registroExitoso)="onRegistroExitoso()"
+        (cancelar)="cerrarModalCrear()">
+      </app-registro>
+    </div>
+  </div>
+</div>

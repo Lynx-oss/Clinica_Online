@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { SupabaseService } from '../../services/supabase.service';
+import { Recaptcha } from '../../services/recaptcha';
 
 @Component({
   selector: 'app-registro',
@@ -21,9 +22,9 @@ export class Registro implements OnInit{
   tipoUsuario: 'paciente' | 'especialista' | 'admin' = 'paciente';
 
   imagen1: File | null = null;
-  imagen1Preview: File | null = null;
+  imagen1Preview: string | null = null;
   imagen2: File | null = null;
-  imagen2Preview: File | null = null;
+  imagen2Preview: string | null = null;
 
   especialidades: any[] = [];
   obrasSociales = [
@@ -40,13 +41,78 @@ export class Registro implements OnInit{
 
   loading = false;
   mostrarNuevaEspecialidad = false;
+  recaptchaToken: string = '';
+  recaptchaWidgetId: number | undefined;
+  recaptchaLoaded = false;
 
 
-  constructor(private router: Router, private supabaseService: SupabaseService, private fb: FormBuilder){}
+  constructor(private router: Router, private supabaseService: SupabaseService, private fb: FormBuilder, private recaptcha: Recaptcha  ){}
 
   ngOnInit(){
     this.inicializarForm();
     this.cargarEspecialidades();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const container = document.getElementById('recaptcha-container');
+
+      if(container){
+        console.log('Contenedor encontrado', container);
+        this.renderRecaptcha();
+      } else {
+        console.error('no se encontro el contenedor de recaptcha');
+        console.log(' Elementos disponibles:', document.querySelectorAll('[id*="recaptcha"]'))      
+      }
+    }, 500);
+      }
+
+  ngOnDestroy(){
+    if(this.recaptchaWidgetId !== undefined){
+      this.recaptcha.reset(this.recaptchaWidgetId);
+    }
+  }
+
+  renderRecaptcha(){
+    let intentos = 0;
+    let maxIntentos = 100;
+    const checkRecaptcha = setInterval(() => {
+      intentos++
+
+       console.log(`🔄 Intento ${intentos}/${maxIntentos}`);
+       console.log('   typeof grecaptcha:', typeof(window as any).grecaptcha);
+
+       if(typeof (window as any).grecaptcha !== 'undefined'){
+        console.log('   grecaptcha.render:', typeof (window as any).grecaptcha.render)
+       }
+      if(this.recaptcha.isReady()){
+        clearInterval(checkRecaptcha);
+
+        try{
+          this.recaptchaWidgetId = this.recaptcha.render('recaptcha-container', (token: string) => {
+            this.recaptchaToken = token;
+            console.log('Captcha completado', token.substring(0, 20) + '...');
+          });
+          this.recaptchaLoaded = true;
+          console.log(this.recaptchaWidgetId);
+        } catch (error){
+          console.error('error al renderizar el captcha', error);
+        }
+      }
+      if(intentos >= maxIntentos){
+        console.error('No se pudo cargar reCAPTCHA');
+        clearInterval(checkRecaptcha);
+
+        Swal.fire({
+          icon: 'warning',
+          title: 'reCAPTCHA no disponible',
+          text: 'No se pudo cargar el reCAPTCHA. Por favor, intente nuevamente más tarde.',
+          confirmButtonColor: '#0077b6' 
+        })
+      }
+    }, 100);
+
+
   }
 
   inicializarForm() {
@@ -179,6 +245,18 @@ export class Registro implements OnInit{
   }
 
   async registrar() {
+
+    if(!this.recaptchaToken){
+      Swal.fire({
+        icon: 'warning',
+        title: 'verificacion requerida',
+        text: 'porfavor complete el captcha',
+        confirmButtonColor: '#0077b6' 
+      })
+      return;
+    }
+
+
     if(this.registroForm.invalid) {
       Object.keys(this.registroForm.controls).forEach(key => {
         const control = this.registroForm.get(key);
@@ -272,10 +350,18 @@ export class Registro implements OnInit{
         confirmButtonColor: '#0077b6'
       })
 
-      await this.supabaseService.signOut();
-      this.router.navigate(['/login']
+      if(this.recaptchaWidgetId !== undefined){
+        this.recaptcha.reset(this.recaptchaWidgetId);
+        this.recaptchaToken = '';
+      }
 
-      )
+      if(this.esModal){
+        this.registroExitoso.emit();
+        this.limpiarFormulario();
+      }else {
+        await this.supabaseService.signOut();
+        this.router.navigate(['/login'])
+      }
 
       
 
@@ -296,10 +382,28 @@ export class Registro implements OnInit{
         text: mensajeError,
         confirmButtonColor: '#0077b6'
       });
+
+      if(this.recaptchaWidgetId !== undefined){
+        this.recaptcha.reset(this.recaptchaWidgetId);
+        this.recaptchaToken = '';
+      }
     } finally {
       this.loading = false;
     }
   }
+
+   limpiarFormulario() {
+    this.registroForm.reset();
+    this.imagen1 = null;
+    this.imagen1Preview = null;
+    this.imagen2 = null;
+    this.imagen2Preview = null;
+    this.tipoUsuario = 'paciente';
+    if (this.recaptchaWidgetId !== undefined) {
+      this.recaptcha.reset(this.recaptchaWidgetId);
+      this.recaptchaToken = '';
+    }
+   }
 
    toggleNuevaEspecialidad() {
     this.mostrarNuevaEspecialidad = !this.mostrarNuevaEspecialidad;

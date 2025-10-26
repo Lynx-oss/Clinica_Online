@@ -164,6 +164,259 @@ export class SupabaseService {
       return await this.supabase.auth.admin.deleteUser(userId);
     }
 
+    async getTurnosPaciente(pacienteId: string){
+      const { data, error} = await this.supabase
+      .from('turnos')
+      .select(`*, especialista:especialista_id(nombre, apellido, imagen_perfil_1),
+      paciente:paciente_id(nombre, apellido, imagen_perfil_1`)
+      .eq('paciente_id', pacienteId)
+      .order('fecha', {ascending: false});
+
+      return { data, error}
+    }
+
+    async getTurnosEspecialista(especialistaId: string){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .select(`*, especialista:especialista_id(nombre, apellido, imagen_perfil_1),
+        paciente:paciente_id(nombre, apellido, imagen_perfil_1, obra_social)`)
+        .eq('especialista_id', especialistaId)
+        .order('fecha', {ascending: false})
+
+        return {data, error};
+    }
+    
+    async getTodosLosTurnos(){
+      const {data, error} = await this.supabase
+      .from('turnos')
+        .select(`*,
+          especialista:especialista_id(nombre, apellido, imagen_perfil_1),
+          paciente:paciente_id(nombre, apellido, imagen_perfil_1)`)
+        .order('fecha', {ascending: false});
+
+        return {data, error};
+      
+    }
+
+    async crearTurno(turnoData: any){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .insert(turnoData)
+      .select()
+      .single();
+
+      return { data, error};
+    }
+
+    async actualizarTurno(turnoId: number, updates: any){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .update(updates)
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return {data , error};
+    }
+
+    async cancelarTurno(turnoId: number, comentario: string){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .update({
+        estado: 'candelado',
+        comentario_cancelacion: comentario,
+        fecha_cancelacion: new Date().toISOString()
+      })
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return {data, error}
+    }
+
+    async rechazarTurno(turnoId: number, comentario: string){
+      const { data, error } = await this.supabase
+      .from('turnos')
+      .update({
+        estado: 'rechazado',
+        comentario_rechazo: comentario,
+        fecha_rechazo: new Date().toISOString()
+      })
+
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return {data , error }
+    }
+
+    async aceptarTurno(turnoId: number){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .update({
+        estado: 'aceptado',
+        fecha_aceptacion: new Date().toISOString()
+      })
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return {data, error};
+    }
+
+    async finalizarTurno(turnoId: number, reseña: string){
+      const { data, error} = await this.supabase
+      .from('turnos')
+      .update({
+        estado: 'realizado',
+        reseña_especialista: reseña,
+        fecha_realizacion: new Date().toISOString()
+      })
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return { data, error};
+    }
+
+    async calificarAtencion(turnoId: number, calificacion: number, comentario: string){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .update({
+        calificacion_atencion: calificacion,
+        comentario_calificacion: comentario
+      })
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return { data, error};
+    }
+
+    async completarEncuesta(turnoId: number, pacienteId: string, encuestaData: any){
+      const {data: encuesta, error: encuestaError} = await this.supabase
+      .from('encuestas')
+      .insert({
+        turnoId: turnoId,
+        paciente_id: pacienteId,
+        ...encuestaData
+      })
+      .select()
+      .single();
+
+      if(encuestaError) return { data: null, error: encuestaError};
+
+      const { data, error} = await this.supabase
+      .from('turnos')
+      .update({encuesta_completada: true})
+      .eq('id', turnoId)
+      .select()
+      .single();
+
+      return {data ,  error}
+    }
+
+    async getHorariosEspecialista(especialistaId: string){
+      const { data, error} = await this.supabase
+      .from('horarios_especialista')
+      .select('*')
+      .eq('especialista_id', especialistaId)
+      .order('especialidad')
+      .order('dia_semana')
+
+      return {data, error};
+    }
+
+    async crearHorario(horarioData: any){
+      const {data, error} = await this.supabase
+      .from('horarios_especialista')
+      .insert(horarioData)
+      .select()
+      .single();
+
+      return { data, error};
+    }
+
+    async eliminarHorario(horarioId: number){
+      const {data ,error} = await this.supabase
+      .from('horarios_especialista')
+      .delete()
+      .eq('id', horarioId)
+    }
+
+    async getHorariosDisponibles(especialistaId: string, especialidad: string, fecha: string){
+      const diaSemana = new Date(fecha).getDay();
+
+      const {data: horarios, error} = await this.supabase
+      .from('horarios_especialista')
+      .select('*')
+      .eq('especialista_id', especialistaId)
+      .eq('especialidad', especialidad)
+      .eq('dia_semana', diaSemana);
+
+      if(error || !horarios) return {data: [], error};
+
+      const {data: turnosTomados} = await this.supabase
+      .from('turnos')
+      .select('hora')
+      .eq('especialista_id', especialistaId)
+      .eq('fecha', fecha)
+      .neq('estado', 'cancelado')
+      .neq('estado', 'rechazado');
+
+      const horariosDisponibles: string[] = [];
+      horarios.forEach(horario => {
+        const inicio = horario.hora_inicio;
+        const fin = horario.hora_fin;
+        const duracion = horario.duracion_turno;
+
+        let current = inicio;
+        while( current < fin) {
+          const ocupado = turnosTomados?.some(t => t.hora === current);
+          if (!ocupado){
+            horariosDisponibles.push(current);
+          }
+
+          const [horas, minutos] = current.split(':').map(Number);
+          const totalMinutes = horas * 60 + minutos + duracion;
+          const newH = Math.floor(totalMinutes / 60);
+          const newM = totalMinutes % 60;
+          current = `${String(newH).padStart(2, '0')}: ${String(newM).padStart(2,'0')}`;
+        }
+      })
+      return { data: horariosDisponibles, error: null};
+    }
+
+    async getPacientesAtendidos (especialistaId: string){
+      const {data, error} = await this.supabase
+      .from('turnos')
+      .select(`paciente_id, fecha, especialidad, paciente:paciente_id(nombre, apellido, dni, imagen_perfil_1)`)
+      .eq('especialista_id', especialistaId)
+      .eq('estado', 'realizado')
+      .order('fecha', {ascending: false})
+
+      if(error) return {data: [], error};
+
+      const pacientesMap = new Map();
+
+      data.forEach((turno: any) => {
+        if(!pacientesMap.has(turno.paciente_id)){
+          pacientesMap.set(turno.paciente_id, {
+            ...turno.paciente,
+            id: turno.paciente_id,
+            turnos: []
+          })
+        }
+        if(pacientesMap.get(turno.paciente_id).turnos.length < 3){
+          pacientesMap.get(turno.paciente_id).turnos.push({
+            fecha: turno.fecha,
+            especialidad: turno.especialidad
+          })
+        }
+      })
+
+      return { data: Array.from(pacientesMap.values()), error: null}
+    }
 
 
 

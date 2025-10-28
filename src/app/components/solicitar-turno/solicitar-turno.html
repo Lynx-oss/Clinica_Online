@@ -1,0 +1,193 @@
+<div class="solicitar-turno-container">
+  <nav class="navbar">
+    <div class="navbar-content">
+      <h1> Solicitar Turno</h1>
+      <button class="btn-volver" (click)="volver()">
+        ← Volver
+      </button>
+    </div>
+  </nav>
+
+  <div class="content">
+    
+    <div class="pasos-indicador">
+      <div class="paso" [class.active]="paso >= 1" [class.completed]="paso > 1">
+        <div class="paso-numero">1</div>
+        <div class="paso-texto">Profesional</div>
+      </div>
+      <div class="paso-linea" [class.active]="paso > 1"></div>
+      
+      <div class="paso" [class.active]="paso >= 2" [class.completed]="paso > 2">
+        <div class="paso-numero">2</div>
+        <div class="paso-texto">Especialidad</div>
+      </div>
+      <div class="paso-linea" [class.active]="paso > 2"></div>
+      
+      <div class="paso" [class.active]="paso >= 3" [class.completed]="paso > 3">
+        <div class="paso-numero">3</div>
+        <div class="paso-texto">Fecha</div>
+      </div>
+      <div class="paso-linea" [class.active]="paso > 3"></div>
+      
+      <div class="paso" [class.active]="paso >= 4" [class.completed]="paso > 4">
+        <div class="paso-numero">4</div>
+        <div class="paso-texto">Horario</div>
+      </div>
+    </div>
+
+    <div class="seccion" *ngIf="isAdmin && paso === 1">
+      <h2> Seleccionar Paciente</h2>
+      <div class="pacientes-grid">
+        <div 
+          *ngFor="let paciente of pacientes"
+          class="paciente-card"
+          [class.selected]="pacienteSeleccionado?.id === paciente.id"
+          (click)="seleccionarPaciente(paciente)">
+          <img 
+            [src]="paciente.imagen_perfil_1 || 'assets/default-avatar.png'" 
+            [alt]="paciente.nombre"
+            class="paciente-img">
+          <div class="paciente-info">
+            <h4>{{ paciente.nombre }} {{ paciente.apellido }}</h4>
+            <p>DNI: {{ paciente.dni }}</p>
+          </div>
+          <div class="check-icon" *ngIf="pacienteSeleccionado?.id === paciente.id">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion" *ngIf="paso === 1 && (!isAdmin || pacienteSeleccionado)">
+      <h2>🩺 Seleccionar Profesional</h2>
+      <p class="subtitulo">Elige el especialista que deseas consultar</p>
+      
+      <div class="especialistas-grid">
+        <button 
+          *ngFor="let especialista of especialista"
+          class="especialista-btn"
+          (click)="seleccionarEspecialista(especialista)"
+          [disabled]="loading">
+          <div class="especialista-imagen-container">
+            <img 
+              [src]="especialista.imagen_perfil_1 || 'assets/default-doctor.png'" 
+              [alt]="especialista.nombre"
+              class="especialista-img">
+          </div>
+          <div class="especialista-nombre">
+            {{ especialista.nombre }} {{ especialista.apellido }}
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="seccion" *ngIf="paso === 2 && especialistaSeleccionado">
+      <h2> Seleccionar Especialidad</h2>
+      <p class="subtitulo">
+        <strong>{{ especialistaSeleccionado.nombre }} {{ especialistaSeleccionado.apellido }}</strong> - 
+        Elige la especialidad
+      </p>
+      
+      <div class="especialidades-grid">
+        <button 
+          *ngFor="let especialidad of especialistaSeleccionado.especialidades"
+          class="especialidad-btn"
+          (click)="seleccionarEspecialidad(especialidad)"
+          [disabled]="loading">
+          <div class="especialidad-icono">
+            🩺
+          </div>
+          <div class="especialidad-nombre">
+            {{ especialidad }}
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="seccion" *ngIf="paso === 3 && especialidadSeleccionada">
+      <h2> Seleccionar Fecha</h2>
+      <p class="subtitulo">
+        <strong>{{ especialistaSeleccionado?.nombre }} {{ especialistaSeleccionado?.apellido }}</strong> - 
+        {{ especialidadSeleccionada }}
+      </p>
+      
+      <div class="fechas-grid">
+        <button 
+          *ngFor="let fecha of fechaDisponibles"
+          class="fecha-btn"
+          [class.selected]="esFechaSeleccionada(fecha)"
+          (click)="seleccionarFecha(fecha)"
+          [disabled]="loading">
+          <div class="fecha-dia">
+            {{ formatearFechaCorta(fecha) }}
+          </div>
+          <div class="fecha-numero">
+            {{ fecha.getDate() }}
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="seccion" *ngIf="paso === 4 && fechaSeleccionada">
+      <h2> Seleccionar Horario</h2>
+      <p class="subtitulo">
+        <strong>{{ formatearFecha(fechaSeleccionada) }}</strong> - 
+        {{ especialistaSeleccionado?.nombre }} {{ especialistaSeleccionado?.apellido }}
+      </p>
+      
+      <div *ngIf="loading" class="loading-horarios">
+        <div class="spinner"></div>
+        <p>Cargando horarios disponibles...</p>
+      </div>
+
+      <div *ngIf="!loading && horariosDisponibles.length === 0" class="sin-horarios">
+        <p>😔 No hay horarios disponibles para esta fecha</p>
+        <button class="btn-secondary" (click)="volver()">Elegir otra fecha</button>
+      </div>
+
+      <div *ngIf="!loading && horariosDisponibles.length > 0" class="horarios-grid">
+        <button 
+          *ngFor="let horario of horariosDisponibles"
+          class="horario-btn"
+          [class.selected]="horariosSeleccionado === horario"
+          (click)="seleccionarHorario(horario)">
+          {{ horario }}
+        </button>
+      </div>
+
+      
+      <div *ngIf="horariosSeleccionado" class="confirmacion-container">
+        <div class="resumen-turno">
+          <h3> Resumen del Turno</h3>
+          <div class="resumen-item" *ngIf="isAdmin && pacienteSeleccionado">
+            <span class="label">Paciente:</span>
+            <span class="value">{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Especialista:</span>
+            <span class="value">{{ especialistaSeleccionado?.nombre }} {{ especialistaSeleccionado?.apellido }}</span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Especialidad:</span>
+            <span class="value">{{ especialidadSeleccionada }}</span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Fecha:</span>
+            <span class="value">{{ formatearFecha(fechaSeleccionada) }}</span>
+          </div>
+          <div class="resumen-item">
+            <span class="label">Horario:</span>
+            <span class="value">{{ horariosSeleccionado }}</span>
+          </div>
+        </div>
+
+        <button 
+          class="btn-confirmar"
+          (click)="confirmarTurno()"
+          [disabled]="loading">
+          <span *ngIf="loading" class="spinner-sm"></span>
+          {{ loading ? 'Confirmando...' : '✓ Confirmar Turno' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

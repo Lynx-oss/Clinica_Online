@@ -168,7 +168,7 @@ export class SupabaseService {
       const { data, error} = await this.supabase
       .from('turnos')
       .select(`*, especialista:especialista_id(nombre, apellido, imagen_perfil_1),
-      paciente:paciente_id(nombre, apellido, imagen_perfil_1`)
+      paciente:paciente_id(nombre, apellido, imagen_perfil_1)`)
       .eq('paciente_id', pacienteId)
       .order('fecha', {ascending: false});
 

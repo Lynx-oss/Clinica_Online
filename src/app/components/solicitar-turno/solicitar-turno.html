@@ -57,7 +57,7 @@
     </div>
 
     <div class="seccion" *ngIf="paso === 1 && (!isAdmin || pacienteSeleccionado)">
-      <h2>🩺 Seleccionar Profesional</h2>
+      <h2> Seleccionar Profesional</h2>
       <p class="subtitulo">Elige el especialista que deseas consultar</p>
       
       <div class="especialistas-grid">
@@ -139,7 +139,7 @@
       </div>
 
       <div *ngIf="!loading && horariosDisponibles.length === 0" class="sin-horarios">
-        <p>😔 No hay horarios disponibles para esta fecha</p>
+        <p> No hay horarios disponibles para esta fecha</p>
         <button class="btn-secondary" (click)="volver()">Elegir otra fecha</button>
       </div>
 

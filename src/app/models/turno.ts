@@ -9,7 +9,7 @@ export interface Turno {
     estado: 'pendiente' | 'aceptado' | 'rechazado' | 'cancelado' | 'realizado';
     comentario_cancelacion?: string;
     comentario_rechazo?: string;
-    reseña_especialista?: string;
+    resena_especialista?: string;
     calificacion_atencion?: number;
     comentario_calificacion?: string;
     encuesta_completada: boolean;
@@ -22,4 +22,18 @@ export interface EspecialistaConEspecialidades {
     apellido: string;
     imagen_perfil_1: string;
     especialidades: string[];
+}
+
+export interface TurnoConDetalles extends Turno {
+    especialista?: {
+        nombre: string;
+        apellido: string;
+        imagen_perfil_1: string;
+    };
+    paciente?: {
+        nombre: string;
+        apellido: string;
+        imagen_perfil_1: string;
+        obra_social?: string;
+    }
 }

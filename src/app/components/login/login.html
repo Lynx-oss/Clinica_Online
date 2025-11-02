@@ -18,11 +18,18 @@
       <button type="submit" class="btn btn-primary w-100" [disabled]="loading" ><span> {{ loading ? 'Ingresando...' : 'Ingresar' }}</span></button>
       <div class="mb-3">
         <p class="text-center small text-muted mb-2">Acesso rapido: </p>
-        <div class="d-flex gap-2 justify-content-center">
-          <button type="button" class="btn btn-sm btn-outline-primary" (click)="quickLogin('admin')" [disabled] ="loading">Admin</button>
-          <button type="button" class="btn btn-sm btn-outline-success" (click)="quickLogin('paciente')" [disabled]="loading">Paciente</button>
-          <button type="button" class ="btn btn-sm btn-outline-info" (click)="quickLogin('especialista')" [disabled]="loading">Especialista</button>
-        </div>
+        <div class="acceso-imagenes">
+    <button
+      *ngFor="let usuario of usuariosRapidos"
+      class="usuario-img-btn"
+      (click)="loginRapido(usuario)"
+      [disabled]="loading"
+      [title]="usuario.nombre + ' - ' + usuario.rol">
+      <img 
+        [src]="usuario.imagen" 
+        [alt]="usuario.nombre"
+        (error)="$any($event.target).src='assets/default-avatar.png'"></button>
+  </div>
       </div>
 
       <div class="d-flex justify-content-center align-items-center mt-3">
@@ -31,4 +38,6 @@
       </div>
     </form>
   </div>
+
+  
 </div>

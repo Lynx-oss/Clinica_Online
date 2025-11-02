@@ -16,6 +16,51 @@ export class Login {
   password = '';
   loading = false;
 
+    usuariosRapidos = [
+    { 
+      email: 'paciente1@test.com', 
+      password: 'paciente123', 
+      imagen: 'assets/paciente1.jpg', 
+      nombre: 'Juan Pérez', 
+      rol: 'Paciente' 
+    },
+    { 
+      email: 'paciente2@test.com', 
+      password: 'paciente123', 
+      imagen: 'assets/paciente2.jpg', 
+      nombre: 'María García', 
+      rol: 'Paciente' 
+    },
+    { 
+      email: 'paciente3@test.com', 
+      password: 'paciente123', 
+      imagen: 'assets/paciente3.jpg', 
+      nombre: 'Carlos López', 
+      rol: 'Paciente' 
+    },
+    { 
+      email: 'especialista1@test.com', 
+      password: 'especialista123', 
+      imagen: 'assets/especialista1.jpg', 
+      nombre: 'Dr. Martínez', 
+      rol: 'Especialista' 
+    },
+    { 
+      email: 'especialista2@test.com', 
+      password: 'especialista123', 
+      imagen: 'assets/especialista2.jpg', 
+      nombre: 'Dra. Rodríguez', 
+      rol: 'Especialista' 
+    },
+    { 
+      email: 'admin@clinica.com', 
+      password: 'admin123', 
+      imagen: 'assets/admin.jpg', 
+      nombre: 'Administrador', 
+      rol: 'Admin' 
+    }
+  ];
+
   constructor(private router: Router, private supabaseService: SupabaseService){}
 
   async login() {
@@ -99,6 +144,12 @@ export class Login {
       } finally {
         this.loading = false;
       }
+    }
+
+    loginRapido (usuario: any) {
+      this.email = usuario.email;
+      this.password = usuario.password;
+      this.login();
     }
 
     async quickLogin(role: 'paciente' | 'especialista' | 'admin') {

@@ -337,7 +337,6 @@ export class Registro implements OnInit{
       } else if (this.tipoUsuario === 'especialista'){
         profileData.especialidad = especialidadFinal;
       }
-
       const { error: profileError } = await this.supabaseService.createProfile(profileData);
       if(profileError) throw profileError;
 

@@ -52,34 +52,47 @@ export class SolicitarTurno implements OnInit {
     }
   }
 
-  async cargarEspecialista(){
-    this.loading = true;
-    try{
-      const usuarios = await this.supabaseService.getAllProfiles();
+ async cargarEspecialista() {
+  this.loading = true;
 
-      const especialistasData = usuarios.filter(
-        (u: UserProfile) => u.role === 'especialista' && u.approved
-      );
-      
-      this.especialista = especialistasData.map((esp: UserProfile) => ({
+  try {
+    const usuarios = await this.supabaseService.getAllProfiles();
+
+    const especialistasData = usuarios.filter(
+      (u: UserProfile) => u.role === 'especialista' && u.approved
+    );
+
+    this.especialista = especialistasData.map((esp: UserProfile) => {
+      let publicUrl = '';
+
+      if (esp.imagen_perfil_1) {
+        // Accedemos correctamente a data.publicUrl
+        const { data } = this.supabaseService.getPublicUrl(esp.imagen_perfil_1);
+        publicUrl = data?.publicUrl || '';
+      }
+
+      return {
         id: esp.id,
         nombre: esp.nombre,
         apellido: esp.apellido,
-        imagen_perfil_1: esp.imagen_perfil_1 || '',
+        imagen_perfil_1: publicUrl,
         especialidades: esp.especialidad ? [esp.especialidad] : []
-      }));
-  } catch (error){
+      };
+    });
+
+  } catch (error) {
     console.error('Error cargando especialista: ', error);
     Swal.fire({
       icon: 'error',
-      title: 'error',
-      text: 'no se pudieron cargar las especialistas',
+      title: 'Error',
+      text: 'No se pudieron cargar los especialistas',
       confirmButtonColor: '#0077b6'
-    })
+    });
   } finally {
     this.loading = false;
   }
 }
+
 
   async cargarPacientes(){
     try {

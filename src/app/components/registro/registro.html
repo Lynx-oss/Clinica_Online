@@ -272,6 +272,13 @@
         </div>
       </div>
 
+      <div class="recaptcha-container mb-3">
+        <div id="recaptcha-container"></div>
+        <p class="recaptcha-info" *ngIf="!recaptchaLoaded">
+          cargando validacion
+        </p>
+      </div>
+
       <div class="d-flex gap-2 mt-4">
         <button 
           type="submit" 

@@ -1,0 +1,221 @@
+<div class="mis-turnos-container">
+  
+  <nav class="navbar">
+    <div class="navbar-content">
+      <h1> Mis Turnos</h1>
+      <div class="navbar-actions">
+        <button class="btn-nuevo-turno" (click)="solicitarNuevoTurno()">
+          + Solicitar Turno
+        </button>
+        <button class="btn-volver" (click)="volver()">
+          ← Volver
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="content">
+    
+    
+    <div class="filtros-section">
+      <div class="filtro-grupo">
+        <label>Estado:</label>
+        <div class="filtro-botones">
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEstado === 'todos'"
+            (click)="cambiarFiltroEstado('todos')">
+            Todos
+          </button>
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEstado === 'pendiente'"
+            (click)="cambiarFiltroEstado('pendiente')">
+             Pendientes
+          </button>
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEstado === 'aceptado'"
+            (click)="cambiarFiltroEstado('aceptado')">
+             Aceptados
+          </button>
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEstado === 'realizado'"
+            (click)="cambiarFiltroEstado('realizado')">
+             Realizados
+          </button>
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEstado === 'cancelado'"
+            (click)="cambiarFiltroEstado('cancelado')">
+             Cancelados
+          </button>
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEstado === 'rechazado'"
+            (click)="cambiarFiltroEstado('rechazado')">
+             Rechazados
+          </button>
+        </div>
+      </div>
+
+      <div class="filtro-grupo" *ngIf="especialidadesDisponibles.length > 0">
+        <label>Especialidad:</label>
+        <div class="filtro-botones">
+          <button 
+            class="filtro-btn"
+            [class.active]="filtroEspecialidad === 'todas'"
+            (click)="cambiarFiltroEspecialidad('todas')">
+            Todas
+          </button>
+          <button 
+            *ngFor="let esp of especialidadesDisponibles"
+            class="filtro-btn"
+            [class.active]="filtroEspecialidad === esp"
+            (click)="cambiarFiltroEspecialidad(esp)">
+            {{ esp }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando turnos...</p>
+    </div>
+
+    <div *ngIf="!loading && turnosFiltrados.length === 0" class="sin-turnos">
+      <div class="sin-turnos-icon"></div>
+      <h2>No tienes turnos</h2>
+      <p *ngIf="filtroEstado === 'todos' && filtroEspecialidad === 'todas'">
+        Aún no has solicitado ningún turno
+      </p>
+      <p *ngIf="filtroEstado !== 'todos' || filtroEspecialidad !== 'todas'">
+        No hay turnos con los filtros seleccionados
+      </p>
+      <button class="btn-solicitar" (click)="solicitarNuevoTurno()">
+         Solicitar mi primer turno
+      </button>
+    </div>
+
+    <div *ngIf="!loading && turnosFiltrados.length > 0" class="turnos-grid">
+      <div 
+        *ngFor="let turno of turnosFiltrados" 
+        class="turno-card"
+        [class.turno-pendiente]="turno.estado === 'pendiente'"
+        [class.turno-aceptado]="turno.estado === 'aceptado'"
+        [class.turno-rechazado]="turno.estado === 'rechazado'"
+        [class.turno-cancelado]="turno.estado === 'cancelado'"
+        [class.turno-realizado]="turno.estado === 'realizado'">
+        
+        <div class="turno-header">
+          <div class="especialista-info">
+            <img 
+              [src]="turno.especialista?.imagen_perfil_1 || 'assets/default-doctor.png'" 
+              [alt]="turno.especialista?.nombre"
+              class="especialista-avatar">
+            <div>
+              <h3>{{ turno.especialista?.nombre }} {{ turno.especialista?.apellido }}</h3>
+              <p class="especialidad">{{ turno.especialidad }}</p>
+            </div>
+          </div>
+          <span class="estado-badge" [ngClass]="getEstadoClase(turno.estado)">
+            {{ getEstadoTexto(turno.estado) }}
+          </span>
+        </div>
+
+        <div class="turno-detalles">
+          <div class="detalle-item">
+            <span class="detalle-label"> Fecha:</span>
+            <span class="detalle-valor">{{ formatearFecha(turno.fecha) }}</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-label"> Hora:</span>
+            <span class="detalle-valor">{{ turno.hora }}</span>
+          </div>
+          <div class="detalle-item">
+            <span class="detalle-label"> Duración:</span>
+            <span class="detalle-valor">{{ turno.duracion }} minutos</span>
+          </div>
+        </div>
+
+        <div *ngIf="turno.estado === 'rechazado' && turno.comentario_rechazo" class="turno-comentario rechazo">
+          <strong>Motivo del rechazo:</strong>
+          <p>{{ turno.comentario_rechazo }}</p>
+        </div>
+
+        <div *ngIf="turno.estado === 'cancelado' && turno.comentario_cancelacion" class="turno-comentario cancelacion">
+          <strong>Motivo de cancelación:</strong>
+          <p>{{ turno.comentario_cancelacion }}</p>
+        </div>
+
+        <div *ngIf="turno.estado === 'realizado' && turno.resena_especialista" class="turno-resena">
+          <strong> Reseña del especialista:</strong>
+          <p>{{ turno.resena_especialista }}</p>
+        </div>
+
+        <div *ngIf="turno.calificacion_atencion" class="turno-calificacion">
+          <strong>Tu calificación:</strong>
+          <div class="estrellas">
+            {{ '⭐'.repeat(turno.calificacion_atencion) }}
+          </div>
+        </div>
+
+        <div class="turno-acciones">
+          
+          <button 
+            *ngIf="puedeCancelar(turno)"
+            class="btn-accion btn-cancelar"
+            (click)="cancelarTurno(turno)"
+            [disabled]="loading">
+             Cancelar Turno
+          </button>
+
+          <ng-container *ngIf="turno.estado === 'realizado'">
+            
+            <button 
+              *ngIf="turno.resena_especialista"
+              class="btn-accion btn-ver"
+              (click)="verResena(turno)">
+               Ver Reseña
+            </button>
+
+            <button 
+              *ngIf="puedeCalificar(turno)"
+              class="btn-accion btn-calificar"
+              (click)="calificarAtencion(turno)"
+              [disabled]="loading">
+               Calificar Atención
+            </button>
+
+            <button 
+              *ngIf="turno.calificacion_atencion"
+              class="btn-accion btn-ver"
+              (click)="verCalificacion(turno)">
+               Ver Calificación
+            </button>
+
+            <button 
+              *ngIf="puedeCompletarEncuesta(turno)"
+              class="btn-accion btn-encuesta"
+              (click)="completarEncuesta(turno)"
+              [disabled]="loading">
+               Completar Encuesta
+            </button>
+
+            <span 
+              *ngIf="turno.encuesta_completada"
+              class="badge-completado">
+              ✓ Encuesta Completada
+            </span>
+
+          </ng-container>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

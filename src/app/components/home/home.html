@@ -102,14 +102,10 @@
       </div>
 
       <div class="actions-card">
-        <div class="card-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.2-4.2l4.2-4.2"></path>
-          </svg>
-          <h3>Acciones rapidas</h3>
-        </div>
-        <button class="action-btn admin-btn" *ngIf="profile?.role === 'admin'" (click)="irAUsuarios()">
+        <h3> Acciones Rápidas</h3>
+        
+        <div class="action-buttons">
+          <button class="action-btn admin-btn" *ngIf="profile?.role === 'admin'" (click)="irAUsuarios()">
             <div class="btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
@@ -124,7 +120,22 @@
             </div>
           </button>
 
-          <button class="action-btn paciente-btn" *ngIf="profile?.role === 'paciente'">
+          <button class="action-btn admin-btn" *ngIf="profile?.role === 'admin'" (click)="irASolicitarTurno()">
+            <div class="btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div class="btn-text">
+              <span class="btn-title">Solicitar Turno</span>
+              <span class="btn-desc">Agendar turno para un paciente</span>
+            </div>
+          </button>
+
+          <button class="action-btn paciente-btn" *ngIf="profile?.role === 'paciente'" (click)="irAMisTurnos()">
             <div class="btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -135,11 +146,25 @@
             </div>
             <div class="btn-text">
               <span class="btn-title">Mis Turnos</span>
-              <span class="btn-desc">Ver y solicitar turnos</span>
+              <span class="btn-desc">Ver y gestionar turnos</span>
             </div>
           </button>
 
-           <button class="action-btn paciente-btn" *ngIf="profile?.role === 'paciente'">
+          <button class="action-btn paciente-btn" *ngIf="profile?.role === 'paciente'" (click)="irASolicitarTurno()">
+            <div class="btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+            </div>
+            <div class="btn-text">
+              <span class="btn-title">Solicitar Turno</span>
+              <span class="btn-desc">Agendar nuevo turno</span>
+            </div>
+          </button>
+
+          <button class="action-btn paciente-btn" *ngIf="profile?.role === 'paciente'">
             <div class="btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
@@ -166,7 +191,7 @@
             </div>
           </button>
 
-           <button class="action-btn especialista-btn" *ngIf="profile?.role === 'especialista'">
+          <button class="action-btn especialista-btn" *ngIf="profile?.role === 'especialista'">
             <div class="btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -195,11 +220,7 @@
           </button>
         </div>
       </div>
-    </div>
-
-
-
-
       </div>
-    
 
+  </div>
+</div>

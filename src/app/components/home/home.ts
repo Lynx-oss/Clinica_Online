@@ -53,4 +53,16 @@ export class Home implements OnInit {
       default: return '';
     }
   }
+
+  irASolicitarTurno() {
+    this.router.navigate(['/solicitar-turno']);
+  }
+
+  irAMisTurnos() {
+    this.router.navigate(['/mis-turnos']);
+  }
+
+  irAUsuario() {
+    this.router.navigate(['/usuario']);
+  }
 }

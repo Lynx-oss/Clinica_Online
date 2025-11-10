@@ -341,3 +341,42 @@ a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.recaptcha-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  background: #f8fcff;
+  border-radius: 12px;
+  border: 2px solid #90e0ef;
+  max-width: 100%;
+  overflow: hidden; 
+  margin: 0;
+}
+
+.recaptcha-info {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+#recaptcha-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+}
+
+#recaptcha-container > div {
+  transform-origin: 0 0;
+}
+
+@media (max-width: 350px) {
+  #recaptcha-container {
+    transform: scale(0.77);
+    transform-origin: center center;
+  }
+}

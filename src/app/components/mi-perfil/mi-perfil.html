@@ -1,0 +1,69 @@
+<div class="mi-perfil-container">
+  <div class="header">
+    <button class="btn-volver" (click)="volver()">
+      ← Volver
+    </button>
+    <h1>Mi Historia Clínica</h1>
+  </div>
+
+  <div class="filtros-section">
+    <div class="filtro-especialidad">
+      <label>Filtrar por Especialidad:</label>
+      <select 
+        [(ngModel)]="especialidadSeleccionada" 
+        (ngModelChange)="onEspecialidadChange()"
+        class="select-especialidad">
+        <option [value]="null">Todas las especialidades</option>
+        <option *ngFor="let esp of especialidades" [value]="esp.id">
+          {{ esp.nombre }}
+        </option>
+      </select>
+    </div>
+    <button class="btn-descargar" (click)="descargarPDF()">
+      📄 Descargar PDF
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando historia clínica...</p>
+  </div>
+
+  <div *ngIf="!loading && turnosFiltrados.length === 0" class="no-turnos">
+    <p>No hay atenciones registradas{{ especialidadSeleccionada ? ' para esta especialidad' : '' }}.</p>
+  </div>
+
+  <div *ngIf="!loading && turnosFiltrados.length > 0" class="turnos-list">
+    <div 
+      *ngFor="let turno of turnosFiltrados; let i = index" 
+      class="turno-card" 
+      [@fadeInUp]
+      [style.animation-delay]="(i * 0.1) + 's'">
+      <div class="turno-header">
+        <div class="turno-fecha">
+          <span class="fecha-label">Fecha</span>
+          <span class="fecha-value">{{ formatearFecha(turno.fecha) }}</span>
+        </div>
+        <div class="turno-hora">
+          <span class="hora-value">{{ turno.hora }}</span>
+        </div>
+      </div>
+      
+      <div class="turno-info">
+        <div class="info-row">
+          <span class="label">Especialidad:</span>
+          <span class="value">{{ getEspecialidadNombre(turno) }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Especialista:</span>
+          <span class="value">{{ turno.especialista?.nombre || '' }} {{ turno.especialista?.apellido || '' }}</span>
+        </div>
+        <div *ngIf="turno.resena_especialista" class="info-row resena">
+          <span class="label">Reseña:</span>
+          <span class="value">{{ turno.resena_especialista }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

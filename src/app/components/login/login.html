@@ -2,7 +2,7 @@
   <div class="card p-4 shadow" style="border-radius: 40px; width: 400px;">
     
     <h3 class="text-center mb-4">Iniciar Sesión</h3>
-    <form>
+    <form (ngSubmit)="login()" #formLogin="ngForm">
       <div class="form-floating mb-3">
         <input type="email" class="form-control" id="floatingInput" placeholder="email" [(ngModel)]="email" name="email" [disabled]="loading" required>
         <label for="floatingInput">Email</label>

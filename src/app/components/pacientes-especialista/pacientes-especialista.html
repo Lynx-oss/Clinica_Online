@@ -1,0 +1,52 @@
+<div class="pacientes-container">
+  <div class="header">
+    <button class="btn-volver" (click)="volver()">
+      ← Volver
+    </button>
+    <h1>Mis Pacientes</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando pacientes...</p>
+  </div>
+
+  <div *ngIf="!loading && pacientes.length === 0" class="no-pacientes">
+    <p>No has atendido pacientes aún.</p>
+  </div>
+
+  <div *ngIf="!loading && pacientes.length > 0" class="pacientes-grid">
+    <div *ngFor="let paciente of pacientes; let i = index" class="paciente-card" [@fadeInUp] [style.animation-delay]="(i * 0.1) + 's'">
+      <div class="card-header">
+        <img 
+          [src]="paciente.imagen_perfil_1 || 'assets/default-avatar.png'" 
+          [alt]="paciente.nombre"
+          class="paciente-avatar">
+        <div class="paciente-info">
+          <h3>{{ paciente.nombre }} {{ paciente.apellido }}</h3>
+          <p class="dni">DNI: {{ paciente.dni }}</p>
+        </div>
+      </div>
+
+      <div class="turnos-section">
+        <h4>Últimos 3 Turnos</h4>
+        <div class="turnos-list">
+          <div *ngFor="let turno of paciente.turnos" class="turno-item">
+            <span class="fecha">{{ formatearFecha(turno.fecha) }}</span>
+            <span class="especialidad">{{ turno.especialidad }}</span>
+          </div>
+          <p *ngIf="paciente.turnos.length === 0" class="sin-turnos">
+            No hay turnos registrados
+          </p>
+        </div>
+      </div>
+
+      <button 
+        class="btn-historia" 
+        (click)="verHistoriaClinica(paciente.id)">
+        Ver Historia Clínica
+      </button>
+    </div>
+  </div>
+</div>
+

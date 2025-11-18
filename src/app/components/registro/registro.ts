@@ -174,9 +174,15 @@ export class Registro implements OnInit{
     this.imagen2Preview = null;
   }
 
-  async cargarEspecialidades(){
-    this.especialidades = await this.supabaseService.getEspecialidades();
-  }  
+ async cargarEspecialidades() {
+  const { data, error } = await this.supabaseService.getEspecialidades();
+  
+  if (error) {
+    console.error('Error cargando especialidades:', error);
+  }
+  
+  this.especialidades = data || [];  
+}
 
   onFileSelected(event: any, numeroImagen: number) {
     const file = event.target.files[0];
@@ -320,16 +326,14 @@ export class Registro implements OnInit{
       }
     
       const profileData: any = {
-        id: userId,
-        email: formValue.email,
-        role: this.tipoUsuario,
-        nombre: formValue.nombre,
-        apellido: formValue.apellido,
-        edad: parseInt(formValue.edad),
-        dni: formValue.dni,
-        imagen_perfil_1: imagen1Url,
-        approved: this.tipoUsuario === 'admin' || this.tipoUsuario === 'paciente'
-      }
+      role: this.tipoUsuario,
+      nombre: formValue.nombre,
+      apellido: formValue.apellido,
+      edad: parseInt(formValue.edad),
+      dni: formValue.dni,
+      imagen_perfil_1: imagen1Url,
+      approved: this.tipoUsuario === 'admin' || this.tipoUsuario === 'paciente'
+    }
 
       if(this.tipoUsuario === 'paciente') {
         profileData.obra_social = formValue.obraSocial;
@@ -337,7 +341,8 @@ export class Registro implements OnInit{
       } else if (this.tipoUsuario === 'especialista'){
         profileData.especialidad = especialidadFinal;
       }
-      const { error: profileError } = await this.supabaseService.createProfile(profileData);
+
+    const { error: profileError } = await this.supabaseService.updateProfile(userId, profileData);
       if(profileError) throw profileError;
 
       await Swal.fire({

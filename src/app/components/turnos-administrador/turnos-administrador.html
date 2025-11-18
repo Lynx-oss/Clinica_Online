@@ -1,0 +1,91 @@
+<div class="turnos-admin-container">
+   <div class="header-section">
+    <button (click)="volverHome()" class="btn-volver">
+      <span class="icon-arrow-left">←</span> Volver a Home
+    </button>
+    <h1 class="titulo">Gestión de Turnos de la Clínica</h1>
+   </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <p>Cargando todos los turnos de la clínica...</p>
+    <div class="spinner"></div> 
+  </div>
+
+  <div *ngIf="!adminId && !loading" class="access-denied">
+    <p>❌ Acceso no autorizado. Esta sección es exclusiva para Administradores.</p>
+  </div>
+
+  <div *ngIf="adminId && !loading">
+    
+    <div class="filter-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="textoFiltro" 
+        (ngModelChange)="filtrarTurnos()" 
+        placeholder="Filtrar por Especialidad o Especialista..."
+        class="filter-input"
+      >
+      <div class="count-display">
+        Mostrando {{ turnosFiltrados.length }} de {{ turnosOriginales.length }} turnos
+      </div>
+    </div>
+
+    <div *ngIf="turnosFiltrados.length === 0" class="no-results">
+      <p *ngIf="textoFiltro">No se encontraron turnos que coincidan con "{{ textoFiltro }}".</p>
+      <p *ngIf="!textoFiltro">No hay turnos registrados en la clínica.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="turnosFiltrados.length > 0">
+      <table class="turnos-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Especialidad</th>
+            <th>Especialista</th>
+            <th>Paciente</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let turno of turnosFiltrados">
+            <td data-label="Fecha">{{ turno.fecha | date: 'dd/MM/yyyy' }}</td>
+            <td data-label="Hora">{{ turno.hora }}</td>
+            
+            <td data-label="Especialidad">{{ turno.especialidad_nombre | uppercase }}</td>
+            <td data-label="Especialista">{{ turno.especialista_nombre }}</td>
+            <td data-label="Paciente">{{ turno.paciente_nombre }}</td>
+            
+            <td data-label="Estado">
+              <span class="status-badge status-{{ turno.estado }}">{{ turno.estado | uppercase }}</span>
+            </td>
+
+            <td data-label="Acciones" class="action-buttons">
+              
+              <button 
+                *ngIf="puedeCancelar(turno)" 
+                (click)="onCancelar(turno)" 
+                class="btn btn-cancel"
+                title="Cancelar Turno"
+              >
+                Cancelar
+              </button>
+
+              <button 
+                *ngIf="puedeVerResena(turno)"
+                (click)="onVerResena(turno)" 
+                class="btn btn-view"
+                title="Ver Comentarios o Reseña"
+              >
+                Detalles
+              </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

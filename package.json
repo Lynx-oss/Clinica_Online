@@ -22,6 +22,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.3.5",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
     "@angular/core": "^20.3.0",
@@ -32,9 +33,11 @@
     "@google-cloud/recaptcha-enterprise": "^6.3.1",
     "@supabase/supabase-js": "^2.75.0",
     "firebase": "^12.4.0",
+    "jspdf": "^3.0.3",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.1",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {

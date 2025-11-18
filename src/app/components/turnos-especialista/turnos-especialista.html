@@ -1,0 +1,69 @@
+<div class="container-fondo">
+<div class="turnos-especialista-container">
+
+    <div class="header-content">
+        <button (click)="volverHome()" class="btn-volver">
+            <span class="icon-arrow-left">←</span> Volver 
+        </button>
+        <h2> Mis Turnos Asignados</h2>
+    </div>
+    
+    <div class="filtro-unico">
+        <label for="filtro">Buscar (Especialidad o Paciente):</label>
+        <input 
+            type="text" 
+            [(ngModel)]="textoFiltro" 
+            (input)="filtrarTurnos()"
+            placeholder="Ej: Odontología o Pérez Juan"
+            class="form-control">
+    </div>
+
+    <div *ngIf="loading" class="text-center">
+        <p>Cargando turnos...</p>
+    </div>
+
+    <ng-container *ngIf="!loading">
+        <div *ngFor="let turno of turnosFiltrados" class="turno-card">
+            <div class="card-header">
+                <span class="estado-tag estado-{{ turno.estado }}">{{ turno.estado | uppercase }}</span>
+            </div>
+            
+            <div class="card-body">
+                <p><strong>Especialidad:</strong> {{ turno.especialidad_nombre }}</p>
+                <p><strong>Paciente:</strong> {{ turno.paciente_nombre }}</p>
+                <p><strong>Fecha/Hora:</strong> {{ turno.fecha | date: 'dd/MM/yyyy' }} {{ turno.hora }}</p>
+
+                <div class="acciones-container">
+                    
+                    <button *ngIf="puedeAceptar(turno)" (click)="onAceptar(turno)" class="btn btn-success">
+                        Aceptar Turno
+                    </button>
+
+                    <button *ngIf="puedeFinalizar(turno)" (click)="onFinalizar(turno)" class="btn btn-primary">
+                        Finalizar Turno
+                    </button>
+
+                    <button *ngIf="puedeRechazar(turno)" (click)="onRechazar(turno)" class="btn btn-danger">
+                        Rechazar Turno
+                    </button>
+                    
+                    <button *ngIf="puedeCancelar(turno)" (click)="onCancelar(turno)" class="btn btn-warning">
+                        Cancelar Turno
+                    </button>
+
+                    <button *ngIf="puedeVerResena(turno)" (click)="onVerResena(turno)" class="btn btn-info">
+                        Ver Reseña/Comentario
+                    </button>
+
+                </div>
+            </div>
+        </div>
+        
+        <div *ngIf="!turnosFiltrados.length">
+            <p class="text-center">No hay turnos que coincidan con el filtro.</p>
+        </div>
+    </ng-container>
+</div>
+
+
+</div>

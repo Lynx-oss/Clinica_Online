@@ -111,7 +111,7 @@ export class MisTurnos implements OnInit{
     if(result.isConfirmed && result.value){
       this.loading = true;
       try {
-        const {error} = await this.supabaseService.cancelarTurno(turno.id!, result.value);
+        const {error} = await this.supabaseService.cancelarTurno(turno.id!, result.value, this.currentUser!.id);
 
         if (error) throw error;
 
@@ -330,7 +330,6 @@ export class MisTurnos implements OnInit{
 
         const { error } = await this.supabaseService.completarEncuesta(
           turno.id!,
-          this.currentUser!.id,
           encuestaData
         );
 

@@ -3,14 +3,30 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 import { SupabaseService, UserProfile } from '../../services/supabase.service';
 import { Registro } from '../registro/registro';
+import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-usuarios',
   standalone: true,
   imports: [CommonModule, FormsModule, Registro ], 
   templateUrl: './usuarios.html',
-  styleUrl: './usuarios.css'
+  styleUrl: './usuarios.css',
+  animations: [
+    trigger('slideUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate('0.5s ease', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeInUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('0.4s ease', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class UsuariosComponent implements OnInit {
   usuarios: UserProfile[] = [];
@@ -180,6 +196,62 @@ export class UsuariosComponent implements OnInit {
 
   getApprovedBadgeClass(approved: boolean): string {
     return approved ? 'approved-badge' : 'pending-badge';
+  }
+
+  async descargarExcelUsuario(usuario: UserProfile) {
+    try {
+      Swal.fire({
+        title: 'Generando Excel...',
+        text: 'Por favor espera',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const { data: turnos, error } = await this.supabaseService.getTurnosUsuario(usuario.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Preparar datos para Excel
+      const datosExcel = (turnos || []).map((turno: any) => ({
+        'Fecha': turno.fecha,
+        'Hora': turno.hora,
+        'Especialidad': turno.especialidad?.nombre || 'N/A',
+        'Estado': turno.estado,
+        'Tipo': turno.tipo === 'paciente' ? 'Como Paciente' : 'Como Especialista',
+        'Con Quién': turno.con_quien || 'N/A',
+        'Duración (min)': turno.duracion || 30,
+        'Comentario': turno.comentario_cancelacion || turno.resena_especialista || 'N/A'
+      }));
+
+      // Crear workbook
+      const ws = XLSX.utils.json_to_sheet(datosExcel);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
+
+      // Generar archivo
+      const nombreArchivo = `Turnos_${usuario.nombre}_${usuario.apellido}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, nombreArchivo);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Excel generado',
+        text: `Se descargó el archivo: ${nombreArchivo}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error: any) {
+      console.error('Error generando Excel:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo generar el archivo Excel',
+        confirmButtonColor: '#0077b6'
+      });
+    }
   }
 }
 

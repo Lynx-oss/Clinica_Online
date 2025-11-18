@@ -65,4 +65,20 @@ export class Home implements OnInit {
   irAUsuario() {
     this.router.navigate(['/usuario']);
   }
+
+  irAMisTurnosEspecialista() {
+    this.router.navigate(['/turnos-especialista']);
+  }
+
+  irTurnos(){
+    this.router.navigate(['/turnos-administrador']);
+  }
+
+  irAPacientes() {
+    this.router.navigate(['/pacientes-especialista']);
+  }
+
+  irAMiPerfil() {
+    this.router.navigate(['/mi-perfil']);
+  }
 }

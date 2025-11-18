@@ -1,65 +1,122 @@
-.solicitar-turno-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+:host {
+  /* --- PALETA DE COLORES --- */
+  --color-primary: #0077b6;
+  --color-primary-dark: #023e8a;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-gray: #6b7280;
+  --color-light: #f0f9ff;
+  --color-white: #ffffff;
+  --border-color: #e0f2fe;
+
+  /* --- ESTILOS VISUALES (Unificados) --- */
+  --radius-md: 12px; /* Radio para botones y tarjetas pequeñas */
+  --radius-lg: 16px; /* Radio para contenedores grandes */
+  --transition: 0.3s ease; /* Transición unificada */
+  
+  /* Sombras unificadas */
+  --shadow: 0 4px 15px rgba(0, 0, 0, 0.07); /* Sombra base para tarjetas */
+  --shadow-hover: 0 8px 25px rgba(0, 119, 182, 0.2); /* Sombra hover principal (azul) */
+  --shadow-container: 0 4px 20px rgba(0, 0, 0, 0.08); /* Sombra para contenedores estáticos */
 }
 
-/* Navbar */
-.navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem 0;
+/* ------------------------------ */
+/* CONTENEDOR Y CARGA */
+/* ------------------------------ */
+.solicitar-turno-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--color-light) 0%, var(--border-color) 100%);
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------ */
+/* NAVBAR */
+/* ------------------------------ */
+.navbar,
+.header {
+  background: var(--color-white);
+  box-shadow: var(--shadow-container); /* Sombra de contenedor */
+  padding: 1rem 1.5rem;
   position: sticky;
   top: 0;
   z-index: 100;
 }
 
-.navbar-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
+.navbar-content,
+.header {
+  max-width: 1200px;
+  margin: auto;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  justify-content: flex-start;
 }
 
-.navbar h1 {
-  color: #023e8a;
-  font-size: 1.75rem;
+.navbar h1,
+.header h1 {
   margin: 0;
+  color: var(--color-primary-dark);
+  font-size: 1.6rem;
+  margin-left: auto;
 }
 
 .btn-volver {
-  background: white;
-  color: #0077b6;
-  border: 2px solid #0077b6;
-  border-radius: 10px;
-  padding: 0.75rem 1.5rem;
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md); /* Actualizado */
+  padding: 0.6rem 1.25rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  font-size: 0.95rem;
 }
 
 .btn-volver:hover {
-  background: #f0f9ff;
+  background: var(--color-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.15); /* Sombra hover sutil */
 }
 
-/* Content */
-.content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-/* Indicador de pasos */
+/* ------------------------------ */
+/* INDICADOR DE PASOS */
+/* ------------------------------ */
 .pasos-indicador {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 3rem;
+  margin: 2rem auto 3rem;
   padding: 2rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: var(--color-white);
+  border-radius: var(--radius-lg); /* Actualizado */
+  box-shadow: var(--shadow-container); /* Actualizado */
+  max-width: 1400px;
 }
 
 .paso {
@@ -67,61 +124,70 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  position: relative; /* Añadido para la línea */
 }
 
-.paso-numero {
+.paso .numero {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #6b7280;
+  background: var(--border-color);
+  color: var(--color-gray);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 1.25rem;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
-.paso.active .paso-numero {
-  background: #0077b6;
+.paso.activo .numero {
+  background: var(--color-primary);
   color: white;
   transform: scale(1.1);
 }
 
-.paso.completed .paso-numero {
-  background: #10b981;
+.paso.completado .numero {
+  background: var(--color-success);
   color: white;
 }
 
-.paso-texto {
+.paso .texto {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-gray);
+  transition: var(--transition);
 }
 
-.paso.active .paso-texto {
-  color: #0077b6;
+.paso.activo .texto {
+  color: var(--color-primary);
 }
 
-.paso-linea {
-  width: 80px;
+/* Líneas entre pasos */
+.paso:not(:last-child)::after {
+  content: '';
+  width: 80px; /* Ancho de la línea */
   height: 3px;
-  background: #e0f2fe;
+  background: var(--border-color);
   margin: 0 1rem;
-  transition: all 0.3s ease;
+  position: absolute;
+  top: 24px; /* Centrado verticalmente con el número */
+  left: calc(100% + 1rem); /* Espacio entre número y línea */
+  transition: var(--transition);
+  z-index: -1;
 }
 
-.paso-linea.active {
-  background: #0077b6;
+.paso.completado::after {
+  background: var(--color-primary); /* Línea se colorea al completar */
 }
 
-/* Secciones */
-.seccion {
-  background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+/* ------------------------------ */
+/* CONTENEDOR DE PASO */
+/* ------------------------------ */
+.paso-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
   animation: fadeInUp 0.5s ease;
 }
 
@@ -136,378 +202,306 @@
   }
 }
 
-.seccion h2 {
-  color: #023e8a;
+.paso-container h2 {
+  color: var(--color-primary-dark);
   font-size: 1.75rem;
   margin-bottom: 0.5rem;
 }
 
-.subtitulo {
-  color: #6b7280;
+.info-seleccion {
+  background: var(--color-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md); /* Actualizado */
+  padding: 1.5rem;
   margin-bottom: 2rem;
 }
 
-/* Grid de pacientes (admin) */
-.pacientes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+.info-seleccion p {
+  margin: 0.5rem 0;
+  color: var(--color-primary-dark);
+  font-weight: 500;
 }
 
+.info-seleccion strong {
+  color: var(--color-primary);
+}
+
+/* ------------------------------ */
+/* GRIDS Y TARJETAS */
+/* ------------------------------ */
+
+.pacientes-section h3 {
+  color: var(--color-primary-dark);
+  margin-bottom: 1rem;
+}
+
+.pacientes-grid,
+.especialistas-grid,
+.especialidades-grid,
+.fechas-grid,
+.horarios-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.pacientes-grid {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  margin-bottom: 2rem;
+}
+
+.especialistas-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.especialidades-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  justify-items: center;
+}
+
+.fechas-grid {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+
+.horarios-grid {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  margin-bottom: 2rem;
+}
+
+/* --- Estilo Base de Tarjetas --- */
+.paciente-card,
+.especialista-card,
+.especialidad-card,
+.fecha-card,
+.horario-card {
+  background: var(--color-white);
+  border: 2px solid var(--border-color);
+  transition: var(--transition);
+  cursor: pointer;
+  box-shadow: var(--shadow); /* Sombra base añadida */
+}
+
+/* --- Hover Base de Tarjetas --- */
+.paciente-card:hover,
+.especialista-card:hover,
+.especialidad-card:hover,
+.fecha-card:hover,
+.horario-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-5px); /* Efecto hover unificado */
+  box-shadow: var(--shadow-hover); /* Sombra hover unificada */
+}
+
+/* Tarjeta de Paciente */
 .paciente-card {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border: 2px solid #e0f2fe;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  border-radius: var(--radius-md);
 }
 
-.paciente-card:hover {
-  border-color: #0077b6;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 119, 182, 0.2);
-}
-
-.paciente-card.selected {
-  border-color: #0077b6;
-  background: #f0f9ff;
-}
-
-.paciente-img {
+.paciente-card img {
   width: 60px;
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.paciente-info h4 {
+.paciente-card h4 {
   margin: 0;
-  color: #023e8a;
+  color: var(--color-primary-dark);
   font-size: 1rem;
 }
 
-.paciente-info p {
+.paciente-card p {
   margin: 0;
-  color: #6b7280;
+  color: var(--color-gray);
   font-size: 0.875rem;
 }
 
-.check-icon {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 30px;
-  height: 30px;
-  background: #10b981;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-
-/* Grid de especialistas */
-.especialistas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1.5rem;
-}
-
-.especialista-btn {
+/* Tarjeta de Especialista */
+.especialista-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: white;
-  border: 2px solid #e0f2fe;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
 }
 
-.especialista-btn:hover:not(:disabled) {
-  border-color: #0077b6;
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 119, 182, 0.2);
-}
-
-.especialista-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.especialista-imagen-container {
+.especialista-card img {
   width: 120px;
   height: 120px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 3px solid #0077b6;
-}
-
-.especialista-img {
-  width: 100%;
-  height: 100%;
+  border-radius: var(--radius-md); /* Actualizado */
   object-fit: cover;
+  border: 3px solid var(--color-primary);
 }
 
-.especialista-nombre {
+.especialista-card h3 {
   font-weight: 700;
-  color: #023e8a;
+  color: var(--color-primary-dark);
   text-align: center;
   font-size: 1rem;
+  margin: 0;
 }
 
-/* Grid de especialidades */
-.especialidades-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1.5rem;
+.especialidades-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
 }
 
-.especialidad-btn {
+.tag {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px; /* Estilo "pill" mantenido */
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Tarjeta de Especialidad */
+.especialidad-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   padding: 2rem 1rem;
-  background: white;
-  border: 3px solid #e0f2fe;
-  border-radius: 50%;
+  border-radius: var(--radius-lg);
   width: 160px;
   height: 160px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  justify-self: center;
 }
 
-.especialidad-btn:hover:not(:disabled) {
-  border-color: #0077b6;
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 8px 30px rgba(0, 119, 182, 0.3);
+.especialidad-card:hover {
+  transform: scale(1.05); /* Efecto hover alternativo mantenido */
+  box-shadow: var(--shadow-hover);
 }
 
-.especialidad-icono {
-  font-size: 3rem;
-}
-
-.especialidad-nombre {
+.especialidad-card h3 {
   font-weight: 700;
-  color: #023e8a;
+  color: var(--color-primary-dark);
   text-align: center;
   font-size: 0.95rem;
+  margin: 0;
 }
 
-/* Grid de fechas */
-.fechas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 1rem;
-}
-
-.fecha-btn {
+/* Tarjeta de Fecha */
+.fecha-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1.5rem 1rem;
-  background: white;
-  border: 2px solid #e0f2fe;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
 }
 
-.fecha-btn:hover:not(:disabled) {
-  border-color: #0077b6;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 119, 182, 0.2);
-}
-
-.fecha-btn.selected {
-  background: linear-gradient(135deg, #0077b6, #023e8a);
-  border-color: #023e8a;
+.fecha-card.seleccionada {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border-color: var(--color-primary-dark);
   color: white;
 }
 
-.fecha-dia {
+.fecha-card .dia {
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
-.fecha-numero {
-  font-size: 1.75rem;
-  font-weight: 700;
+.fecha-card .fecha-completa {
+  font-size: 0.875rem;
+  text-align: center;
 }
 
-/* Grid de horarios */
-.horarios-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.horario-btn {
+/* Tarjeta de Horario */
+.horario-card {
   padding: 1.25rem;
-  background: white;
-  border: 2px solid #e0f2fe;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 1.25rem;
   font-weight: 700;
-  color: #023e8a;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  color: var(--color-primary-dark);
+  text-align: center;
 }
 
-.horario-btn:hover {
-  border-color: #0077b6;
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(0, 119, 182, 0.2);
+.horario-card:hover {
+  transform: scale(1.05); /* Efecto hover alternativo mantenido */
+  box-shadow: var(--shadow-hover);
 }
 
-.horario-btn.selected {
-  background: linear-gradient(135deg, #0077b6, #023e8a);
-  border-color: #023e8a;
+.horario-card.seleccionado {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  border-color: var(--color-primary-dark);
   color: white;
 }
 
-/* Loading y mensajes */
-.loading-horarios,
-.sin-horarios {
-  text-align: center;
-  padding: 3rem;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e0f2fe;
-  border-top-color: #0077b6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.sin-horarios p {
-  font-size: 1.25rem;
-  color: #6b7280;
-  margin-bottom: 1rem;
-}
-
-/* Confirmación */
-.confirmacion-container {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 2px solid #e0f2fe;
-}
-
-.resumen-turno {
-  background: #f0f9ff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.resumen-turno h3 {
-  color: #023e8a;
-  margin-bottom: 1rem;
-}
-
-.resumen-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #e0f2fe;
-}
-
-.resumen-item:last-child {
-  border-bottom: none;
-}
-
-.resumen-item .label {
-  font-weight: 600;
-  color: #0077b6;
-}
-
-.resumen-item .value {
-  color: #023e8a;
-  font-weight: 500;
-}
-
+/* ------------------------------ */
+/* ACCIONES FINALES */
+/* ------------------------------ */
 .btn-confirmar {
   width: 100%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  max-width: 400px;
+  margin: 2rem auto;
+  display: block;
+  background: linear-gradient(135deg, var(--color-success), #059669);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md); /* Actualizado */
   padding: 1.25rem;
   font-size: 1.25rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  transition: var(--transition);
 }
 
 .btn-confirmar:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  /* Sombra verde personalizada para este botón */
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); 
 }
 
 .btn-confirmar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background: #ccc;
+  box-shadow: none;
 }
 
-.spinner-sm {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.mensaje-vacio {
+  text-align: center;
+  color: var(--color-gray);
+  font-size: 1.25rem;
+  padding: 3rem;
 }
 
-.btn-secondary {
-  background: white;
-  color: #0077b6;
-  border: 2px solid #0077b6;
-  border-radius: 10px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background: #f0f9ff;
-}
-
-/* Responsive */
+/* ------------------------------ */
+/* RESPONSIVE */
+/* ------------------------------ */
 @media (max-width: 768px) {
   .pasos-indicador {
     padding: 1rem;
+    overflow-x: auto;
+    justify-content: flex-start;
   }
-
-  .paso-linea {
+  
+  .paso {
+    flex-shrink: 0; /* Evita que los pasos se encojan */
+  }
+  
+  .paso .numero {
     width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
-
-  .paso-texto {
+  
+  .paso .texto {
     font-size: 0.75rem;
+  }
+  
+  .paso:not(:last-child)::after {
+    width: 40px; /* Líneas más cortas en móvil */
+    margin: 0 0.5rem;
+    left: calc(100% + 0.5rem);
   }
 
   .especialistas-grid,
@@ -521,5 +515,9 @@
 
   .horarios-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+
+  .paso-container {
+    padding: 0 1rem 1rem;
   }
 }

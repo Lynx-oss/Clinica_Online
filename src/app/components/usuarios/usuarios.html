@@ -35,37 +35,45 @@
         *ngFor="let usuario of usuariosFiltrados; let i = index" 
         class="usuario-card" 
         [@fadeInUp]
-        [style.animation-delay]="(i * 0.05) + 's'"
-        (click)="descargarExcelUsuario(usuario)"
-        title="Click para descargar Excel con turnos">
-        <button class="fav-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        </button>
+        [style.animation-delay]="(i * 0.05) + 's'">
+        
         <div class="usuario-avatar">
-          <img [src]="usuario.imagen_perfil_1" *ngIf="usuario.imagen_perfil_1" [alt]="usuario.nombre">
+          <img [src]="usuario.imagen_perfil_1" *ngIf="usuario.imagen_perfil_1" [alt]="usuario.nombre || 'Usuario'">
           <div class="avatar-placeholder" *ngIf="!usuario.imagen_perfil_1">
-            {{ usuario.nombre.charAt(0) || '' }}{{ usuario.apellido.charAt(0) || '' }}
+            {{ (usuario.nombre || '?').charAt(0) }}{{ (usuario.apellido || '?').charAt(0) }}
           </div>
         </div>
-        <h3 class="usuario-nombre">{{ usuario.nombre }} {{ usuario.apellido }}</h3>
-        <p class="usuario-email">{{ usuario.email }}</p>
+        
+        <h3 class="usuario-nombre">
+          {{ usuario.nombre || 'Sin nombre' }} {{ usuario.apellido || 'Sin apellido' }}
+        </h3>
+        
+        <p class="usuario-email">{{ usuario.email || 'Sin email' }}</p>
+        
         <div class="usuario-badges">
-          <span [class]="getRoleBadgeClass(usuario.role)">
-            {{ usuario.role }}
+          <span [class]="getRoleBadgeClass(usuario.role || 'paciente')">
+            {{ usuario.role || 'N/A' }}
           </span>
           <span [class]="getApprovedBadgeClass(usuario.approved)">
-            {{ usuario.approved ? 'Habilitado' : 'Deshabilitado' }}
+            {{ usuario.approved ? ' Habilitado' : ' Deshabilitado' }}
           </span>
         </div>
+        
         <div class="card-actions" (click)="$event.stopPropagation()">
+          <button 
+            class="btn-primary-sm"
+            (click)="descargarExcelUsuario(usuario)"
+            title="Descargar historial de turnos">
+             Excel
+          </button>
+          
           <button 
             *ngIf="usuario.role === 'especialista'"
             [class]="usuario.approved ? 'btn-danger-sm' : 'btn-success-sm'"
             (click)="toggleAprobacion(usuario)">
             {{ usuario.approved ? 'Deshabilitar' : 'Habilitar' }}
           </button>
+          
           <button 
             class="btn-danger-sm"
             (click)="eliminarUsuario(usuario)"

@@ -1,0 +1,170 @@
+<div class="modal-historia-clinica">
+  <div class="modal-header">
+    <h2>📋 Cargar Historia Clínica</h2>
+    <p class="paciente-info">Paciente: <strong>{{ pacienteNombre }}</strong></p>
+  </div>
+
+  <div class="modal-body">
+    <form (ngSubmit)="guardar()" #historiaForm="ngForm">
+      
+      <!-- DATOS FIJOS -->
+      <div class="seccion">
+        <h3>📊 Datos Médicos Básicos</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="altura">
+              <span class="icon">📏</span>
+              Altura (cm)
+            </label>
+            <input 
+              type="number" 
+              id="altura"
+              [(ngModel)]="altura"
+              name="altura"
+              placeholder="Ej: 175"
+              step="0.01"
+              min="0"
+              max="300"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="peso">
+              <span class="icon">⚖️</span>
+              Peso (kg)
+            </label>
+            <input 
+              type="number" 
+              id="peso"
+              [(ngModel)]="peso"
+              name="peso"
+              placeholder="Ej: 70"
+              step="0.01"
+              min="0"
+              max="500"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="temperatura">
+              <span class="icon">🌡️</span>
+              Temperatura (°C)
+            </label>
+            <input 
+              type="number" 
+              id="temperatura"
+              [(ngModel)]="temperatura"
+              name="temperatura"
+              placeholder="Ej: 36.5"
+              step="0.01"
+              min="30"
+              max="45"
+              class="form-control">
+          </div>
+
+          <div class="form-group presion-group">
+            <label>
+              <span class="icon">❤️</span>
+              Presión Arterial (mmHg)
+            </label>
+            <div class="presion-inputs">
+              <input 
+                type="number" 
+                [(ngModel)]="presionSistolica"
+                name="presionSistolica"
+                placeholder="Sistólica"
+                min="0"
+                max="300"
+                class="form-control presion-input">
+              <span class="separator">/</span>
+              <input 
+                type="number" 
+                [(ngModel)]="presionDiastolica"
+                name="presionDiastolica"
+                placeholder="Diastólica"
+                min="0"
+                max="200"
+                class="form-control presion-input">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS ADICIONALES -->
+      <div class="seccion">
+        <div class="seccion-header">
+          <h3>🔬 Datos Adicionales (Opcional)</h3>
+          <button 
+            type="button"
+            (click)="agregarDatoAdicional()"
+            class="btn-add"
+            [disabled]="datosAdicionales.length >= 3">
+            + Agregar dato
+          </button>
+        </div>
+
+        <div class="datos-adicionales">
+          <div 
+            *ngFor="let dato of datosAdicionales; let i = index"
+            class="dato-adicional-item">
+            <div class="dato-adicional-inputs">
+              <input 
+                type="text" 
+                [(ngModel)]="dato.clave"
+                [name]="'clave_' + i"
+                placeholder="Ej: Caries"
+                class="form-control dato-clave"
+                maxlength="50">
+              
+              <input 
+                type="text" 
+                [(ngModel)]="dato.valor"
+                [name]="'valor_' + i"
+                placeholder="Ej: 4"
+                class="form-control dato-valor"
+                maxlength="100">
+              
+              <button 
+                type="button"
+                (click)="eliminarDatoAdicional(i)"
+                class="btn-delete"
+                title="Eliminar dato">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <p class="info-text" *ngIf="datosAdicionales.length === 0">
+            No hay datos adicionales agregados
+          </p>
+          <p class="info-text" *ngIf="datosAdicionales.length >= 3">
+            ⚠️ Máximo 3 datos adicionales permitidos
+          </p>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="modal-footer">
+        <button 
+          type="button"
+          (click)="onCancelar()"
+          class="btn btn-secondary"
+          [disabled]="loading">
+          Cancelar
+        </button>
+        
+        <button 
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading">
+          <span *ngIf="!loading">💾 Guardar Historia</span>
+          <span *ngIf="loading">
+            <span class="spinner"></span> Guardando...
+          </span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

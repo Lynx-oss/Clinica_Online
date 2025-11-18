@@ -184,33 +184,21 @@
   box-shadow: 0 12px 30px rgba(0, 119, 182, 0.2);
 }
 
-.fav-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ffd700, #ffed4e);
+.btn-primary-sm {
+  background: #0077b6;
+  color: white;
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
   transition: all 0.3s ease;
-  z-index: 10;
 }
 
-.fav-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6);
-}
-
-.fav-button svg {
-  width: 20px;
-  height: 20px;
-  color: #ff6b00;
+.btn-primary-sm:hover {
+  background: #023e8a;
+  transform: translateY(-1px);
 }
 
 .usuario-avatar {
@@ -494,4 +482,21 @@ tbody tr:hover {
   .modal-content {
     max-height: 95vh;
   }
+}
+
+.btn-primary-sm {
+  background: #0077b6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-sm:hover {
+  background: #023e8a;
+  transform: translateY(-1px);
 }

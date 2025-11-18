@@ -3,6 +3,8 @@ import { environment } from '../../environments/environment';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { TurnoConDetalles } from '../models/turno';
+import { HistoriaClinica, HistoriaClinicaDetalle } from '../models/historia-clinica';
+
 
 export interface UserProfile {
   id: string;
@@ -169,9 +171,32 @@ async getEspecialidades() {
     return { data, error };
   }
 
-  async deleteUser(userId: string) {
-    return await this.supabase.auth.admin.deleteUser(userId);
+  async deleteUser(userId: string): Promise<void> {
+  try {
+    const { error: profileError } = await this.supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+
+    if (profileError) {
+      console.error('Error eliminando perfil:', profileError);
+      throw profileError;
+    }
+
+    
+    const { error: authError } = await this.supabase.auth.admin.deleteUser(userId);
+
+    if (authError) {
+      console.error('Error eliminando usuario de Auth:', authError);
+      throw authError;
+    }
+
+    console.log(' Usuario eliminado correctamente:', userId);
+  } catch (error) {
+    console.error(' Error al eliminar usuario:', error);
+    throw error;
   }
+}
 
 //turnos------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -800,37 +825,205 @@ async getTurnosClinica(): Promise<{ data: TurnoConDetalles[] | null, error: any 
     return { data: todosTurnos, error: null };
   }
 
-  async getHistoriaClinica(pacienteId: string, especialidadId?: number) {
-    let query = this.supabase
+ 
+//historia clinica
+
+
+async crearHistoriaClinica(historia: HistoriaClinica): Promise<{ data: HistoriaClinica | null, error: any }> {
+  try {
+    const { data, error } = await this.supabase
+      .from('historia_clinica')
+      .insert([{
+        paciente_id: historia.paciente_id,
+        especialista_id: historia.especialista_id,
+        turno_id: historia.turno_id,
+        altura: historia.altura,
+        peso: historia.peso,
+        temperatura: historia.temperatura,
+        presion: historia.presion,
+        datos_adicionales: historia.datos_adicionales || []
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creando historia clínica:', error);
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error en crearHistoriaClinica:', error);
+    return { data: null, error };
+  }
+}
+
+/**
+ * Obtener la historia clínica completa de un paciente
+ */
+async getHistoriaClinicaPaciente(pacienteId: string): Promise<{ data: HistoriaClinicaDetalle[] | null, error: any }> {
+  try {
+    const { data, error } = await this.supabase
       .from('historia_clinica')
       .select(`
         *,
-        especialista:especialista_id(nombre, apellido),
-        turno:turno_id(fecha, hora, especialidad:especialidad_id(nombre))
+        especialista:profiles!historia_clinica_especialista_id_fkey(
+          nombre, 
+          apellido
+        ),
+        turno:turnos(
+          especialidad:especialidades(nombre)
+        )
       `)
       .eq('paciente_id', pacienteId)
       .order('fecha_registro', { ascending: false });
 
-    if (especialidadId) {
-      const { data: turnos, error: errorTurnos } = await this.supabase
-        .from('turnos')
-        .select('id')
-        .eq('paciente_id', pacienteId)
-        .eq('especialidad_id', especialidadId)
-        .eq('estado', 'realizado');
-
-      if (errorTurnos || !turnos || turnos.length === 0) {
-        return { data: [], error: null };
-      }
-
-      const turnoIds = turnos.map(t => t.id);
-      query = query.in('turno_id', turnoIds);
+    if (error) {
+      console.error('Error obteniendo historia clínica:', error);
+      return { data: null, error };
     }
 
-    const { data, error } = await query;
+    // Mapear los datos al formato detallado
+    const historiaDetalle: HistoriaClinicaDetalle[] = (data || []).map((item: any) => ({
+      ...item,
+      especialista_nombre: item.especialista?.nombre || 'Desconocido',
+      especialista_apellido: item.especialista?.apellido || '',
+      especialidad_nombre: item.turno?.especialidad?.nombre || 'Sin especialidad'
+    }));
 
-    return { data: data || [], error };
+    return { data: historiaDetalle, error: null };
+  } catch (error) {
+    console.error('Error en getHistoriaClinicaPaciente:', error);
+    return { data: null, error };
   }
+}
+
+/**
+ * Obtener lista de pacientes atendidos por un especialista
+ */
+async getPacientesConHistoriaClinica(especialistaId: string): Promise<{ data: any[] | null, error: any }> {
+  try {
+    const { data, error } = await this.supabase
+      .from('historia_clinica')
+      .select(`
+        paciente:profiles!historia_clinica_paciente_id_fkey(
+          id,
+          nombre,
+          apellido,
+          email,
+          dni,
+          imagen_perfil_1
+        )
+      `)
+      .eq('especialista_id', especialistaId);
+
+    if (error) {
+      console.error('Error obteniendo pacientes con historia:', error);
+      return { data: null, error };
+    }
+
+    // Eliminar duplicados
+    const pacientesUnicos = Array.from(
+      new Map(
+        data
+          .filter((item: any) => item.paciente)
+          .map((item: any) => [item.paciente.id, item.paciente])
+      ).values()
+    );
+
+    return { data: pacientesUnicos, error: null };
+  } catch (error) {
+    console.error('Error en getPacientesConHistoriaClinica:', error);
+    return { data: null, error };
+  }
+}
+
+/**
+ * Verificar si un especialista ha atendido al menos una vez a un paciente
+ */
+async especialistaAtendio(especialistaId: string, pacienteId: string): Promise<boolean> {
+  try {
+    const { data, error } = await this.supabase
+      .from('historia_clinica')
+      .select('id')
+      .eq('especialista_id', especialistaId)
+      .eq('paciente_id', pacienteId)
+      .limit(1);
+
+    if (error) {
+      console.error('Error verificando atención:', error);
+      return false;
+    }
+
+    return data && data.length > 0;
+  } catch (error) {
+    console.error('Error en especialistaAtendio:', error);
+    return false;
+  }
+}
+
+/**
+ * Obtener una entrada específica de historia clínica por ID
+ */
+async getHistoriaClinicaById(id: number): Promise<{ data: HistoriaClinicaDetalle | null, error: any }> {
+  try {
+    const { data, error } = await this.supabase
+      .from('historia_clinica')
+      .select(`
+        *,
+        paciente:profiles!historia_clinica_paciente_id_fkey(
+          nombre,
+          apellido,
+          email,
+          dni,
+          imagen_perfil_1
+        ),
+        especialista:profiles!historia_clinica_especialista_id_fkey(
+          nombre,
+          apellido
+        ),
+        turno:turnos(
+          especialidad:especialidades(nombre)
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error obteniendo historia clínica por ID:', error);
+      return { data: null, error };
+    }
+
+    const historiaDetalle: HistoriaClinicaDetalle = {
+      ...data,
+      paciente_nombre: data.paciente?.nombre,
+      paciente_apellido: data.paciente?.apellido,
+      paciente_email: data.paciente?.email,
+      paciente_dni: data.paciente?.dni,
+      paciente_imagen: data.paciente?.imagen_perfil_1,
+      especialista_nombre: data.especialista?.nombre,
+      especialista_apellido: data.especialista?.apellido,
+      especialidad_nombre: data.turno?.especialidad?.nombre
+    };
+
+    return { data: historiaDetalle, error: null };
+  } catch (error) {
+    console.error('Error en getHistoriaClinicaById:', error);
+    return { data: null, error };
+  }
+}
+
+
+
+async getUser() {
+  try {
+    const res: any = await this.supabase.auth.getUser();
+    return res; 
+  } catch (err) {
+    return null;
+  }
+}
+
 
   async getTurnosRealizadosPaciente(pacienteId: string, especialidadId?: number) {
     let query = this.supabase
@@ -853,5 +1046,46 @@ async getTurnosClinica(): Promise<{ data: TurnoConDetalles[] | null, error: any 
 
     return { data: data || [], error };
   }
+
+
+  //logeos
+
+  async logLogin(userId: string, email?: string, role?: string, ip?: string, userAgent?: string) {
+    const payload: any = {
+      user_id: userId,
+      logged_at: new Date().toISOString()
+    }
+
+    if(email) payload.email = email;
+    if(role) payload.role = role;
+    if(ip) payload.ip_address = ip;
+    if(userAgent) payload.user_agent = userAgent;
+
+    const { data, error} = await this.supabase.from('login_logs').insert(payload)
+
+    return { data, error };
+  }
+
+  async getLoginLogs(opts?: {start?: string; end?: string; limit?: number; offset?: number}) {
+    const start = opts?.start;
+    const end = opts?.end;
+    const limit = opts?.limit ?? 100;
+    const offset = opts?.offset ?? 0;
+
+    let q = this.supabase
+    .from('login_logs')
+    .select('id, user_id, email, role, ip_address, user_agent, logged_at')
+    .order('logged_at', { ascending: false });
+
+    if(start) q = q.gte('logged_at', start);
+    if(end) q = q.lte('logged_at', end);
+    
+    q = q.range(offset, offset + limit -1);
+    const { data, error } = await q;
+    return { data, error };
+  }
+
+
+
 
 }

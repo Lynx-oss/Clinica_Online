@@ -79,8 +79,11 @@ export class Login {
           this.email,
           this.password
         );
-
         if (authError) throw authError;
+        if (!authData?.user) throw new Error('No se obtuvo user del auth');
+
+
+
 
         const profile = await this.supabaseService.getProfile(authData.user!.id);
 
@@ -90,7 +93,7 @@ export class Login {
             title: 'Perfil no encontrado',
             text: 'Por favor, completa tu registro.'
           });
-          await this.supabaseService.signOut;
+          await this.supabaseService.signOut();
           return;
         }
 
@@ -118,6 +121,10 @@ export class Login {
           await this.supabaseService.signOut();
           return;
         }
+
+         const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+        const user = authData.user!;
+        await this.supabaseService.logLogin(user.id, user.email ?? undefined, profile.role, undefined, userAgent);
         Swal.fire({
           icon: 'success',
           title: 'Bienvenido',

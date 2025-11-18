@@ -1,0 +1,58 @@
+<div class="admin-dashboard">
+  <h2>Informe — Log de ingresos al sistema</h2>
+
+  <div class="filtros">
+    <label>
+      Desde:
+      <input type="date" [(ngModel)]="startDate" />
+    </label>
+
+    <label>
+      Hasta:
+      <input type="date" [(ngModel)]="endDate" />
+    </label>
+
+    <button (click)="aplicarFiltro()" [disabled]="loading">Aplicar</button>
+  </div>
+
+  <section class="chart-section">
+    <h3>Ingresos por día</h3>
+
+    <highcharts-chart
+      [Highcharts]="Highcharts"
+      [options]="chartOptions"
+      style="width: 100%; height: 380px; display: block;"
+    ></highcharts-chart>
+  </section>
+
+  <!-- TABLA -->
+  <section class="table-section">
+    <h3>Detalle de ingresos ({{ loginLogs.length }})</h3>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let l of loginLogs">
+            <td>{{ l.user_id }}</td>
+            <td>{{ l.email }}</td>
+            <td>{{ formatDate(l.logged_at) }}</td>
+            <td>{{ formatTime(l.logged_at) }}</td>
+          </tr>
+
+          <tr *ngIf="loginLogs.length === 0">
+            <td colspan="4">No hay registros para este rango.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -150,6 +150,16 @@ export class UsuariosComponent implements OnInit {
       cancelButtonText: 'Cancelar'
     });
 
+     if (usuario.id === this.currentUser?.id) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'No puedes eliminarte a ti mismo',
+      text: 'No puedes eliminar tu propio usuario mientras estés logueado',
+      confirmButtonColor: '#0077b6'
+    });
+    return;
+  }
+
     if (result.isConfirmed) {
       try {
         await this.supabaseService.deleteUser(usuario.id);
@@ -215,7 +225,6 @@ export class UsuariosComponent implements OnInit {
         throw error;
       }
 
-      // Preparar datos para Excel
       const datosExcel = (turnos || []).map((turno: any) => ({
         'Fecha': turno.fecha,
         'Hora': turno.hora,
@@ -227,12 +236,10 @@ export class UsuariosComponent implements OnInit {
         'Comentario': turno.comentario_cancelacion || turno.resena_especialista || 'N/A'
       }));
 
-      // Crear workbook
       const ws = XLSX.utils.json_to_sheet(datosExcel);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Turnos');
 
-      // Generar archivo
       const nombreArchivo = `Turnos_${usuario.nombre}_${usuario.apellido}_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, nombreArchivo);
 

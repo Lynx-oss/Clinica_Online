@@ -78,7 +78,7 @@ export class Home implements OnInit {
     this.router.navigate(['/pacientes-especialista']);
   }
 
-  irAMiPerfil() {
-    this.router.navigate(['/mi-perfil']);
+  irAHistoriaClinica() {
+    this.router.navigate(['/historia-clinica']);
   }
 }

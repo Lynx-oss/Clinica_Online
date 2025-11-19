@@ -12,6 +12,6 @@ export const routes: Routes = [
     { path: 'turnos-especialista', loadComponent: () => import('./components/turnos-especialista/turnos-especialista').then(m => m.TurnosEspecialista), canActivate: [authGuard] },
     { path: 'turnos-administrador', loadComponent: () => import('./components/turnos-administrador/turnos-administrador').then(m => m.TurnosAdministradorComponent), canActivate: [authGuard] },
     { path: 'pacientes-especialista', loadComponent: () => import('./components/pacientes-especialista/pacientes-especialista').then(m => m.PacientesEspecialistaComponent), canActivate: [authGuard] },
-    { path: 'mi-perfil', loadComponent: () => import('./components/mi-perfil/mi-perfil').then(m => m.MiPerfilComponent), canActivate: [authGuard] }
-
+    { path: 'historia-clinica', loadComponent: () => import('./components/historia-clinica/historia-clinica').then(m => m.HistoriaClinica), canActivate: [authGuard] },
+    { path: 'historia-clinica-paciente/:id', loadComponent: () => import('./components/historia-clinica-paciente/historia-clinica-paciente').then(m => m.HistoriaClinicaPaciente), canActivate: [authGuard] }
 ];

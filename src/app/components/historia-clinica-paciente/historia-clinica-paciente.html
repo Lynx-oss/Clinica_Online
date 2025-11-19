@@ -1,0 +1,99 @@
+<div class="historia-container">
+  <div class="header">
+    <button class="btn-volver" (click)="volver()">
+      ← Volver
+    </button>
+    <h1>Historia Clínica del Paciente</h1>
+  </div>
+
+  <div *ngIf="paciente" class="paciente-info-card">
+    <div class="avatar-section">
+      <img 
+        [src]="paciente.imagen_perfil_1 || 'assets/default-avatar.png'" 
+        [alt]="paciente.nombre"
+        class="paciente-avatar">
+    </div>
+    <div class="info-section">
+      <h2>{{ paciente.nombre }} {{ paciente.apellido }}</h2>
+      <p><strong>DNI:</strong> {{ paciente.dni }}</p>
+      <p *ngIf="paciente.obra_social"><strong>Obra Social:</strong> {{ paciente.obra_social }}</p>
+      <p><strong>Email:</strong> {{ paciente.email }}</p>
+    </div>
+    <div class="actions-section">
+      <button class="btn-descargar" (click)="descargarPDF()">
+        📄 Descargar PDF
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando historia clínica...</p>
+  </div>
+
+  <div *ngIf="!loading && historias.length === 0" class="no-historias">
+    <p>No hay registros en la historia clínica de este paciente.</p>
+  </div>
+
+  <div *ngIf="!loading && historias.length > 0" class="historias-list">
+    <h3 class="list-title">Registros Médicos ({{ historias.length }})</h3>
+    
+    <div 
+      *ngFor="let historia of historias; let i = index" 
+      class="historia-card" 
+      [@fadeInUp]
+      [style.animation-delay]="(i * 0.1) + 's'">
+      
+      <div class="historia-header">
+        <div class="fecha-hora">
+          <span class="fecha">{{ formatearFecha(historia.fecha_registro || '') }}</span>
+        </div>
+        <div class="especialista-info">
+          <span class="label">Atendido por:</span>
+          <span class="valor">{{ historia.especialista_nombre }} {{ historia.especialista_apellido }}</span>
+          <span class="especialidad" *ngIf="historia.especialidad_nombre">
+            {{ historia.especialidad_nombre }}
+          </span>
+        </div>
+      </div>
+
+      <div class="historia-body">
+        <div class="datos-fijos">
+          <h4>📊 Datos Médicos</h4>
+          <div class="datos-grid">
+            <div class="dato-item" *ngIf="historia.altura">
+              <span class="icono">📏</span>
+              <span class="label">Altura:</span>
+              <span class="valor">{{ historia.altura }} cm</span>
+            </div>
+            <div class="dato-item" *ngIf="historia.peso">
+              <span class="icono">⚖️</span>
+              <span class="label">Peso:</span>
+              <span class="valor">{{ historia.peso }} kg</span>
+            </div>
+            <div class="dato-item" *ngIf="historia.temperatura">
+              <span class="icono">🌡️</span>
+              <span class="label">Temperatura:</span>
+              <span class="valor">{{ historia.temperatura }} °C</span>
+            </div>
+            <div class="dato-item" *ngIf="historia.presion">
+              <span class="icono">❤️</span>
+              <span class="label">Presión:</span>
+              <span class="valor">{{ historia.presion }} mmHg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="datos-adicionales" *ngIf="historia.datos_adicionales && historia.datos_adicionales.length > 0">
+          <h4>🔬 Datos Adicionales</h4>
+          <div class="datos-adicionales-list">
+            <div *ngFor="let dato of historia.datos_adicionales" class="dato-adicional">
+              <span class="clave">{{ dato.clave }}:</span>
+              <span class="valor">{{ dato.valor }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

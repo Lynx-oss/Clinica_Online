@@ -858,6 +858,58 @@ async crearHistoriaClinica(historia: HistoriaClinica): Promise<{ data: HistoriaC
   }
 }
 
+async puedeVerHistoriaClinica(usuarioId: string, pacienteId: string): Promise<boolean> {
+  try {
+    if (usuarioId === pacienteId) {
+      return true;
+    }
+
+    const perfil = await this.getProfile(usuarioId);
+
+    if (perfil?.role === 'admin') {
+      return true;
+    }
+
+    if (perfil?.role === 'especialista') {
+      const { data: historia, error: errorHistoria } = await this.supabase
+        .from('historia_clinica')
+        .select('id')
+        .eq('especialista_id', usuarioId)
+        .eq('paciente_id', pacienteId)
+        .limit(1);
+
+      if (!errorHistoria && historia && historia.length > 0) {
+        console.log('✅ Especialista tiene registros de historia clínica con este paciente');
+        return true;
+      }
+
+      const { data: turnos, error: errorTurnos } = await this.supabase
+        .from('turnos')
+        .select('id')
+        .eq('especialista_id', usuarioId)
+        .eq('paciente_id', pacienteId)
+        .eq('estado', 'realizado')
+        .limit(1);
+
+      if (!errorTurnos && turnos && turnos.length > 0) {
+        console.log('✅ Especialista tiene turnos realizados con este paciente');
+        return true;
+      }
+
+      console.log('❌ Especialista no ha atendido a este paciente');
+      return false;
+    }
+
+    // Cualquier otro rol no tiene acceso
+    console.log('❌ Rol no autorizado:', perfil?.role);
+    return false;
+    
+  } catch (error) {
+    console.error('❌ Error verificando permisos de historia clínica:', error);
+    return false;
+  }
+}
+
 /**
  * Obtener la historia clínica completa de un paciente
  */

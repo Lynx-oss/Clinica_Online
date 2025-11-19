@@ -9,12 +9,9 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-// IMPORTS NECESARIOS PARA STANDALONE
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HighchartsChartModule } from 'highcharts-angular';
 
-// Inicialización Highcharts
 const maybeExporting: any = Exporting;
 if (typeof maybeExporting === 'function') {
   maybeExporting(Highcharts);
@@ -37,7 +34,6 @@ if (typeof maybeExportData === 'function') {
   imports: [
     CommonModule,
     FormsModule,
-    HighchartsChartModule   
   ],
 })
 export class AdminDashboardComponent implements OnInit {

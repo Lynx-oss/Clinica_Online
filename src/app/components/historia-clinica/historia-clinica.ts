@@ -9,11 +9,11 @@ import { SupabaseService, UserProfile, Especialidad } from '../../services/supab
 import { TurnoConDetalles } from '../../models/turno';
 
 @Component({
-  selector: 'app-mi-perfil',
+  selector: 'app-historia-clinica',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './mi-perfil.html',
-  styleUrl: './mi-perfil.css',
+  templateUrl: 'historia-clinica.html',
+  styleUrl: 'historia-clinica.css',
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -29,7 +29,7 @@ import { TurnoConDetalles } from '../../models/turno';
     ])
   ]
 })
-export class MiPerfilComponent implements OnInit {
+export class HistoriaClinica implements OnInit {
   currentUser: UserProfile | null = null;
   turnos: TurnoConDetalles[] = [];
   turnosFiltrados: TurnoConDetalles[] = [];
@@ -43,7 +43,7 @@ export class MiPerfilComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log('🚀 MiPerfilComponent: ngOnInit iniciado');
+    console.log(' HistoriaClinica: ngOnInit iniciado');
     await this.verificarPaciente();
     if (this.currentUser) {
       console.log('✅ Usuario verificado como paciente:', this.currentUser.nombre);
@@ -125,12 +125,66 @@ export class MiPerfilComponent implements OnInit {
     await this.cargarTurnos();
   }
 
-  async descargarPDF() {
+
+  cargarImagenBase64(url: string): Promise<string> {
+  
+  // 3. Agregamos '<string>' al constructor de la Promesa para que sepa que devuelve texto
+  return new Promise<string>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+             // Rechazamos con un error tipado si falla el contexto
+             reject(new Error("No se pudo obtener el contexto 2D del canvas."));
+             return;
+        }
+        
+        ctx.drawImage(img, 0, 0);
+        const base64Data = canvas.toDataURL('/assets/farmacia.png'); 
+        
+        // Aquí resolvemos con el string
+        resolve(base64Data);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    img.onerror = (error) => {
+      reject(new Error(`Fallo al cargar la imagen: ${error}`));
+    };
+    
+    img.src = url;
+  });
+}
+
+ async descargarPDF() {
     console.log('📄 Iniciando descarga de PDF...');
     if (!this.currentUser) {
       console.log('❌ No hay usuario para generar PDF');
       return;
     }
+
+    // ===============================================
+    // 💡 PASO 1: CARGAR EL LOGO DE FORMA ASÍNCRONA
+    // ===============================================
+    let logoBase64: string | null = null;
+    try {
+        // Espera a que la imagen se cargue y se convierta a Base64
+        // ASUME que el archivo es 'favicon.png' en la raíz de /public
+        logoBase64 = await this.cargarImagenBase64('/clinica-online/assets/farmacia.png');
+        console.log('✅ Logo cargado con éxito.');
+    } catch (e) {
+        console.warn('⚠️ No se pudo cargar el logo, se continuará sin él.');
+        // No detenemos el flujo si la imagen falla
+    }
+    // ===============================================
 
     try {
       Swal.fire({
@@ -152,11 +206,26 @@ export class MiPerfilComponent implements OnInit {
       const pageHeight = pdf.internal.pageSize.getHeight();
       let yPos = 20;
 
-      // Logo (simulado con texto, puedes reemplazar con imagen)
-      pdf.setFontSize(24);
-      pdf.setTextColor(0, 119, 182);
-      pdf.text('🏥 Clínica Online', pageWidth / 2, yPos, { align: 'center' });
-      yPos += 15;
+      // ===============================================
+      // 💡 PASO 2: USAR LA IMAGEN CARGADA
+      // ===============================================
+      if (logoBase64) {
+          const logoWidth = 30; 
+          const logoHeight = 30;
+          const xPosLogo = pageWidth / 2 - logoWidth / 2; // Centrar logo
+          
+          pdf.addImage(
+              logoBase64, 
+              'PNG', // Formato (ajustar si es diferente)
+              xPosLogo, 
+              yPos, 
+              logoWidth, 
+              logoHeight
+          ); 
+          // Mover la posición Y después del logo
+          yPos += logoHeight + 5; 
+      }
+      // ===============================================
 
       // Título
       pdf.setFontSize(18);
@@ -192,6 +261,7 @@ export class MiPerfilComponent implements OnInit {
 
       // Filtro de especialidad si aplica
       if (this.especialidadSeleccionada) {
+        // ... (El resto del código del filtro sigue igual)
         const especialidad = this.especialidades.find(e => e.id === this.especialidadSeleccionada);
         pdf.setFontSize(10);
         pdf.setTextColor(100, 100, 100);
@@ -264,6 +334,7 @@ export class MiPerfilComponent implements OnInit {
         showConfirmButton: false
       });
     } catch (error: any) {
+      // Si falla cualquier cosa DESPUÉS de cargar la imagen (ej: Supabase o jsPDF)
       console.error('Error generando PDF:', error);
       Swal.fire({
         icon: 'error',

@@ -1,35 +1,73 @@
 <div class="admin-dashboard">
-  <h2>Informe — Log de ingresos al sistema</h2>
-
-  <div class="filtros">
-    <label>
-      Desde:
-      <input type="date" [(ngModel)]="startDate" />
-    </label>
-
-    <label>
-      Hasta:
-      <input type="date" [(ngModel)]="endDate" />
-    </label>
-
-    <button (click)="aplicarFiltro()" [disabled]="loading">Aplicar</button>
+  
+  <div class="dashboard-header">
+    <button (click)="volver()" class="btn-volver">
+      <span class="icon-arrow-left">←</span> Volver a Home
+    </button>
+    <h2>Informe — Log de ingresos al sistema</h2>
+  
+    <button class="btn-export" (click)="exportLogsToExcel()" [disabled]="loading || loginLogs.length === 0">
+       Descargar Excel
+    </button>
   </div>
 
-  <section class="chart-section">
-    <h3>Ingresos por día</h3>
+  <div class="filtros-card">
+    <div class="filtros">
+      <div class="filtro-group">
+        <label>Desde:</label>
+        <input type="date" [(ngModel)]="startDate" class="date-input" [disabled]="loading" />
+      </div>
 
-    
+      <div class="filtro-group">
+        <label>Hasta:</label>
+        <input type="date" [(ngModel)]="endDate" class="date-input" [disabled]="loading" />
+      </div>
+
+      <button class="btn-aplicar" (click)="aplicarFiltro()" [disabled]="loading">
+        <span *ngIf="!loading">🔍 Aplicar Filtro</span>
+        <span *ngIf="loading">
+          <span class="spinner-small"></span> Cargando...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando datos...</p>
+  </div>
+
+  <section class="chart-section" *ngIf="!loading && loginsPorDia.length > 0">
+    <h3> Ingresos por día</h3>
+    <div class="chart-container">
+      <highcharts-chart
+        [Highcharts]="Highcharts"
+        [options]="chartOptions"
+        style="width: 100%; height: 400px; display: block;">
+      </highcharts-chart>
+    </div>
   </section>
 
-  <!-- TABLA -->
-  <section class="table-section">
-    <h3>Detalle de ingresos ({{ loginLogs.length }})</h3>
+  <section class="chart-section" *ngIf="!loading && loginsPorDia.length > 0">
+    <h3> Gráfico de ingresos</h3>
+    <div class="chart-container">
+      <div #lineChartContainer style="width: 100%; height: 400px;"></div>
+    </div>
+  </section>
+
+  <section class="table-section" *ngIf="!loading">
+    <div class="table-header">
+      <h3> Detalle de ingresos ({{ loginLogs.length }})</h3>
+      <p class="date-range" *ngIf="loginLogs.length > 0">
+        Del {{ (startDate + 'T00:00:00') | dateFormat }} al {{ (endDate + 'T00:00:00') | dateFormat }}
+      </p>
+    </div>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Usuario</th>
+            <th>Usuario ID</th>
             <th>Email</th>
             <th>Fecha</th>
             <th>Hora</th>
@@ -37,15 +75,34 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let l of loginLogs">
-            <td>{{ l.user_id }}</td>
-            <td>{{ l.email }}</td>
-            <td>{{ formatDate(l.logged_at) }}</td>
-            <td>{{ formatTime(l.logged_at) }}</td>
+          <tr *ngFor="let l of loginLogs" appHighlight highlightColor="#f0f9ff">
+            <td class="user-id" 
+                [appCopyToClipboard]="l.user_id" 
+                [title]="'Click para copiar: ' + l.user_id"
+                [style.cursor]="'pointer'"
+                [style.user-select]="'none'">
+              {{ l.user_id | truncateText:20 }}
+            </td>
+            
+            <td class="email" 
+                [appCopyToClipboard]="l.email"
+                [title]="'Click para copiar: ' + l.email"
+                [style.cursor]="'pointer'"
+                [style.user-select]="'none'">
+              {{ l.email }}
+            </td>
+            
+            <td class="fecha">{{ l.logged_at | dateFormat }}</td>
+            <td class="hora">{{ l.logged_at | timeFormat }}</td>
           </tr>
 
-          <tr *ngIf="loginLogs.length === 0">
-            <td colspan="4">No hay registros para este rango.</td>
+          <tr *ngIf="loginLogs.length === 0" class="no-data">
+            <td colspan="4">
+              <div class="no-data-message">
+                <span class="icon">📭</span>
+                <p>No hay registros para este rango de fechas</p>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>

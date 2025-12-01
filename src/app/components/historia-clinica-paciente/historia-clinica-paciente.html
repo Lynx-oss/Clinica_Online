@@ -21,7 +21,7 @@
     </div>
     <div class="actions-section">
       <button class="btn-descargar" (click)="descargarPDF()">
-        📄 Descargar PDF
+         Descargar PDF
       </button>
     </div>
   </div>
@@ -59,7 +59,7 @@
 
       <div class="historia-body">
         <div class="datos-fijos">
-          <h4>📊 Datos Médicos</h4>
+          <h4> Datos Médicos</h4>
           <div class="datos-grid">
             <div class="dato-item" *ngIf="historia.altura">
               <span class="icono">📏</span>
@@ -85,7 +85,7 @@
         </div>
 
         <div class="datos-adicionales" *ngIf="historia.datos_adicionales && historia.datos_adicionales.length > 0">
-          <h4>🔬 Datos Adicionales</h4>
+          <h4> Datos Adicionales</h4>
           <div class="datos-adicionales-list">
             <div *ngFor="let dato of historia.datos_adicionales" class="dato-adicional">
               <span class="clave">{{ dato.clave }}:</span>

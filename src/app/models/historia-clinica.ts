@@ -10,13 +10,11 @@ export interface HistoriaClinica {
   turno_id?: number | null;
   fecha_registro?: string;
   
-  // Datos fijos (opcionales según tu tabla)
   altura?: number | null;
   peso?: number | null;
   temperatura?: number | null;
   presion?: string | null;
   
-  // Datos dinámicos
   datos_adicionales?: DatoAdicional[];
   
   created_at?: string;

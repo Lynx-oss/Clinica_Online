@@ -4,7 +4,6 @@
   padding: 2rem;
 }
 
-/* HEADER */
 .header {
   max-width: 1200px;
   margin: 0 auto 2rem;
@@ -38,7 +37,6 @@
   flex: 1;
 }
 
-/* CARD INFO DEL PACIENTE */
 .paciente-info-card {
   max-width: 1200px;
   margin: 0 auto 2rem;
@@ -107,7 +105,6 @@
   box-shadow: 0 8px 25px rgba(0, 119, 182, 0.3);
 }
 
-/* ESTADOS DE CARGA */
 .loading-state {
   max-width: 1200px;
   margin: 0 auto;
@@ -154,7 +151,6 @@
   margin: 0;
 }
 
-/* LISTA DE HISTORIAS */
 .historias-list {
   max-width: 1200px;
   margin: 0 auto;
@@ -167,7 +163,6 @@
   padding-left: 0.5rem;
 }
 
-/* CARD DE HISTORIA */
 .historia-card {
   background: white;
   border-radius: 20px;
@@ -194,7 +189,6 @@
   box-shadow: 0 8px 30px rgba(0, 119, 182, 0.2);
 }
 
-/* HEADER DE LA HISTORIA */
 .historia-header {
   display: flex;
   justify-content: space-between;
@@ -243,7 +237,6 @@
   font-weight: 600;
 }
 
-/* BODY DE LA HISTORIA */
 .historia-body {
   display: flex;
   flex-direction: column;
@@ -258,7 +251,6 @@
   font-weight: 700;
 }
 
-/* DATOS MÉDICOS (GRID) */
 .datos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -297,7 +289,6 @@
   margin-left: auto;
 }
 
-/* DATOS ADICIONALES */
 .datos-adicionales {
   background: #fffbeb;
   border: 2px solid #fef3c7;
@@ -331,7 +322,6 @@
   font-weight: 500;
 }
 
-/* RESPONSIVE */
 @media (max-width: 968px) {
   .historia-container {
     padding: 1rem;

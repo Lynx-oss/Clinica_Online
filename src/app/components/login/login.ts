@@ -4,7 +4,6 @@ import Swal  from 'sweetalert2';
 import { SupabaseService } from '../../services/supabase.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 @Component({
   selector: 'app-login',
   imports: [RouterLink, FormsModule, CommonModule],
@@ -124,7 +123,7 @@ export class Login {
 
          const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
         const user = authData.user!;
-        await this.supabaseService.logLogin(user.id, user.email ?? undefined, profile.role, undefined, userAgent);
+        await this.supabaseService.registrarLogin(user.id, user.email ?? '');
         Swal.fire({
           icon: 'success',
           title: 'Bienvenido',

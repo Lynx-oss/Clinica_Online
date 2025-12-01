@@ -94,7 +94,6 @@ export class PacientesEspecialistaComponent implements OnInit {
   }
 
   verHistoriaClinica(pacienteId: string) {
-    // TODO: Implementar vista de historia clínica
       console.log('Ver historia clínica de:', pacienteId);
 
       this.router.navigate(['/historia-clinica-paciente', pacienteId]);

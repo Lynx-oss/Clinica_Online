@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard';
 
+
 export const routes: Routes = [
     {path: '', redirectTo: 'login', pathMatch: 'full' },
     {path: 'login', loadComponent: () => import('./components/login/login').then(m => m.Login) },
@@ -13,5 +14,6 @@ export const routes: Routes = [
     { path: 'turnos-administrador', loadComponent: () => import('./components/turnos-administrador/turnos-administrador').then(m => m.TurnosAdministradorComponent), canActivate: [authGuard] },
     { path: 'pacientes-especialista', loadComponent: () => import('./components/pacientes-especialista/pacientes-especialista').then(m => m.PacientesEspecialistaComponent), canActivate: [authGuard] },
     { path: 'historia-clinica', loadComponent: () => import('./components/historia-clinica/historia-clinica').then(m => m.HistoriaClinica), canActivate: [authGuard] },
-    { path: 'historia-clinica-paciente/:id', loadComponent: () => import('./components/historia-clinica-paciente/historia-clinica-paciente').then(m => m.HistoriaClinicaPaciente), canActivate: [authGuard] }
+    { path: 'historia-clinica-paciente/:id', loadComponent: () => import('./components/historia-clinica-paciente/historia-clinica-paciente').then(m => m.HistoriaClinicaPaciente), canActivate: [authGuard] },
+    { path: 'admin-dashboard', loadComponent: () => import('./components/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard), canActivate: [authGuard] },
 ];

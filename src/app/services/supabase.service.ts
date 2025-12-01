@@ -910,9 +910,7 @@ async puedeVerHistoriaClinica(usuarioId: string, pacienteId: string): Promise<bo
   }
 }
 
-/**
- * Obtener la historia clínica completa de un paciente
- */
+
 async getHistoriaClinicaPaciente(pacienteId: string): Promise<{ data: HistoriaClinicaDetalle[] | null, error: any }> {
   try {
     const { data, error } = await this.supabase
@@ -935,7 +933,6 @@ async getHistoriaClinicaPaciente(pacienteId: string): Promise<{ data: HistoriaCl
       return { data: null, error };
     }
 
-    // Mapear los datos al formato detallado
     const historiaDetalle: HistoriaClinicaDetalle[] = (data || []).map((item: any) => ({
       ...item,
       especialista_nombre: item.especialista?.nombre || 'Desconocido',
@@ -950,9 +947,7 @@ async getHistoriaClinicaPaciente(pacienteId: string): Promise<{ data: HistoriaCl
   }
 }
 
-/**
- * Obtener lista de pacientes atendidos por un especialista
- */
+
 async getPacientesConHistoriaClinica(especialistaId: string): Promise<{ data: any[] | null, error: any }> {
   try {
     const { data, error } = await this.supabase
@@ -974,7 +969,6 @@ async getPacientesConHistoriaClinica(especialistaId: string): Promise<{ data: an
       return { data: null, error };
     }
 
-    // Eliminar duplicados
     const pacientesUnicos = Array.from(
       new Map(
         data
@@ -990,9 +984,7 @@ async getPacientesConHistoriaClinica(especialistaId: string): Promise<{ data: an
   }
 }
 
-/**
- * Verificar si un especialista ha atendido al menos una vez a un paciente
- */
+
 async especialistaAtendio(especialistaId: string, pacienteId: string): Promise<boolean> {
   try {
     const { data, error } = await this.supabase
@@ -1014,9 +1006,6 @@ async especialistaAtendio(especialistaId: string, pacienteId: string): Promise<b
   }
 }
 
-/**
- * Obtener una entrada específica de historia clínica por ID
- */
 async getHistoriaClinicaById(id: number): Promise<{ data: HistoriaClinicaDetalle | null, error: any }> {
   try {
     const { data, error } = await this.supabase
@@ -1102,6 +1091,26 @@ async getUser() {
 
   //logeos
 
+  async registrarLogin(userId: string, email: string) {
+  try {
+    const { error } = await this.supabase
+      .from('login_logs')
+      .insert([{
+        user_id: userId,
+        email: email,
+        logged_at: new Date().toISOString()
+      }]);
+
+    if (error) {
+      console.error('Error registrando login:', error);
+    }
+  } catch (error) {
+    console.error('Error en registrarLogin:', error);
+  }
+}
+
+  
+
   async logLogin(userId: string, email?: string, role?: string, ip?: string, userAgent?: string) {
     const payload: any = {
       user_id: userId,
@@ -1118,24 +1127,28 @@ async getUser() {
     return { data, error };
   }
 
-  async getLoginLogs(opts?: {start?: string; end?: string; limit?: number; offset?: number}) {
-    const start = opts?.start;
-    const end = opts?.end;
-    const limit = opts?.limit ?? 100;
-    const offset = opts?.offset ?? 0;
+async getLoginLogs(params: {start: string; end: string; limit?: number; offset?: number;}): Promise<{ data: any[] | null; error: any }> {
+  try {
+    const { data, error } = await this.supabase
+      .from('login_logs')
+      .select('*')
+      .gte('logged_at', params.start)
+      .lte('logged_at', params.end)
+      .order('logged_at', { ascending: false })
+      .limit(params.limit || 1000)
+      .range(params.offset || 0, (params.offset || 0) + (params.limit || 1000) - 1);
 
-    let q = this.supabase
-    .from('login_logs')
-    .select('id, user_id, email, role, ip_address, user_agent, logged_at')
-    .order('logged_at', { ascending: false });
+    if (error) {
+      console.error('Error obteniendo login logs:', error);
+      return { data: null, error };
+    }
 
-    if(start) q = q.gte('logged_at', start);
-    if(end) q = q.lte('logged_at', end);
-    
-    q = q.range(offset, offset + limit -1);
-    const { data, error } = await q;
-    return { data, error };
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error en getLoginLogs:', error);
+    return { data: null, error };
   }
+}
 
 
 

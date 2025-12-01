@@ -39,9 +39,8 @@ export class HistoriaClinicaPaciente implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log('🏥 HistoriaClinicaPaciente: ngOnInit iniciado');
+    console.log(' HistoriaClinicaPaciente: ngOnInit iniciado');
     
-    // Obtener ID del paciente desde la URL
     this.pacienteId = this.route.snapshot.paramMap.get('id') || '';
     
     if (!this.pacienteId) {
@@ -73,20 +72,17 @@ export class HistoriaClinicaPaciente implements OnInit {
 
       this.currentUser = await this.supabaseService.getProfile(user.id);
 
-      // Verificar permisos según el rol
       if (this.currentUser?.role === 'admin') {
-        // Los admins pueden ver todas las historias
         this.puedeVer = true;
         console.log('✅ Acceso como admin');
       } else if (this.currentUser?.role === 'especialista') {
-        // Verificar si el especialista atendió al paciente
         this.puedeVer = await this.supabaseService.puedeVerHistoriaClinica(
           user.id,
           this.pacienteId
         );
         
         if (!this.puedeVer) {
-          console.log('❌ Especialista no ha atendido a este paciente');
+          console.log(' Especialista no ha atendido a este paciente');
           Swal.fire({
             icon: 'error',
             title: 'Acceso denegado',
@@ -95,22 +91,21 @@ export class HistoriaClinicaPaciente implements OnInit {
           });
           this.router.navigate(['/pacientes']);
         } else {
-          console.log('✅ Acceso como especialista que atendió al paciente');
+          console.log(' Acceso como especialista que atendió al paciente');
         }
       } else if (this.currentUser?.role === 'paciente') {
-        // Los pacientes solo pueden ver su propia historia
         this.puedeVer = (user.id === this.pacienteId);
         
         if (!this.puedeVer) {
           this.mostrarAccesoDenegado();
         } else {
-          console.log('✅ Acceso como paciente a su propia historia');
+          console.log(' Acceso como paciente a su propia historia');
         }
       } else {
         this.mostrarAccesoDenegado();
       }
     } catch (error) {
-      console.error('❌ Error verificando permisos:', error);
+      console.error(' Error verificando permisos:', error);
       this.mostrarAccesoDenegado();
     }
   }
@@ -129,25 +124,23 @@ export class HistoriaClinicaPaciente implements OnInit {
     this.loading = true;
     
     try {
-      // Cargar datos del paciente
       this.paciente = await this.supabaseService.getProfile(this.pacienteId);
       console.log('👤 Paciente cargado:', this.paciente?.nombre);
 
-      // Cargar historia clínica
       const { data, error } = await this.supabaseService.getHistoriaClinicaPaciente(this.pacienteId);
 
       if (error) {
-        console.error('❌ Error cargando historia:', error);
+        console.error(' Error cargando historia:', error);
         throw error;
       }
 
       this.historias = data || [];
       this.historiasFiltradas = this.historias;
       
-      console.log(`✅ Historia clínica cargada: ${this.historias.length} registros`);
+      console.log(` Historia clínica cargada: ${this.historias.length} registros`);
       
     } catch (error) {
-      console.error('❌ Error cargando datos:', error);
+      console.error(' Error cargando datos:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -161,7 +154,7 @@ export class HistoriaClinicaPaciente implements OnInit {
 
   async descargarPDF() {
     if (!this.paciente) {
-      console.log('❌ No hay paciente para generar PDF');
+      console.log(' No hay paciente para generar PDF');
       return;
     }
 
@@ -180,19 +173,16 @@ export class HistoriaClinicaPaciente implements OnInit {
       const pageHeight = pdf.internal.pageSize.getHeight();
       let yPos = 20;
 
-      // Logo
       pdf.setFontSize(24);
       pdf.setTextColor(0, 119, 182);
       pdf.text('🏥 Clínica Online', pageWidth / 2, yPos, { align: 'center' });
       yPos += 15;
 
-      // Título
       pdf.setFontSize(18);
       pdf.setTextColor(0, 0, 0);
       pdf.text('Historia Clínica Completa', pageWidth / 2, yPos, { align: 'center' });
       yPos += 10;
 
-      // Fecha de emisión
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const fechaEmision = new Date().toLocaleDateString('es-AR', {
@@ -205,7 +195,6 @@ export class HistoriaClinicaPaciente implements OnInit {
       pdf.text(`Fecha de emisión: ${fechaEmision}`, pageWidth / 2, yPos, { align: 'center' });
       yPos += 15;
 
-      // Datos del paciente
       pdf.setFontSize(12);
       pdf.setTextColor(0, 0, 0);
       pdf.text(`Paciente: ${this.paciente.nombre} ${this.paciente.apellido}`, 20, yPos);
@@ -218,12 +207,10 @@ export class HistoriaClinicaPaciente implements OnInit {
       }
       yPos += 5;
 
-      // Línea separadora
       pdf.setDrawColor(0, 119, 182);
       pdf.line(20, yPos, pageWidth - 20, yPos);
       yPos += 10;
 
-      // Registros de historia clínica
       if (this.historias.length === 0) {
         pdf.setFontSize(12);
         pdf.setTextColor(100, 100, 100);
@@ -235,7 +222,6 @@ export class HistoriaClinicaPaciente implements OnInit {
         yPos += 10;
 
         this.historias.forEach((historia, index) => {
-          // Verificar si necesitamos nueva página
           if (yPos > pageHeight - 60) {
             pdf.addPage();
             yPos = 20;
@@ -260,7 +246,6 @@ export class HistoriaClinicaPaciente implements OnInit {
             yPos += 6;
           }
 
-          // Datos fijos
           pdf.setFont('helvetica', 'bold');
           pdf.text('Datos Médicos:', 25, yPos);
           yPos += 6;
@@ -283,7 +268,6 @@ export class HistoriaClinicaPaciente implements OnInit {
             yPos += 6;
           }
 
-          // Datos adicionales
           if (historia.datos_adicionales && historia.datos_adicionales.length > 0) {
             pdf.setFont('helvetica', 'bold');
             pdf.text('Datos Adicionales:', 25, yPos);
@@ -303,7 +287,6 @@ export class HistoriaClinicaPaciente implements OnInit {
         });
       }
 
-      // Guardar PDF
       const nombreArchivo = `HistoriaClinica_${this.paciente.nombre}_${this.paciente.apellido}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(nombreArchivo);
 

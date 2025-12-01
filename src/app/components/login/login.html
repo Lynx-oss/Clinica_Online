@@ -4,12 +4,12 @@
     <h3 class="text-center mb-4">Iniciar Sesión</h3>
     <form (ngSubmit)="login()" #formLogin="ngForm">
       <div class="form-floating mb-3">
-        <input type="email" class="form-control" id="floatingInput" placeholder="email" [(ngModel)]="email" name="email" [disabled]="loading" required>
+        <input type="email" class="form-control" id="floatingInput" placeholder="email" [(ngModel)]="email" name="email" [disabled]="loading" required autofocus>
         <label for="floatingInput">Email</label>
       </div>
 
       <div class="form-floating mb-3">
-        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" [(ngModel)] = "password" name="password" [disabled]="loading" required (keyup.enter)="login()">
+        <input type="password" class="form-control" id="floatingPassword" placeholder="Password" [(ngModel)] = "password" name="password" [disabled]="loading" required (keyup.enter)="login()" autofocus>
         <label for="floatingPassword">Clave</label>
       </div>
 

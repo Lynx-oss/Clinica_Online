@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -46,13 +46,13 @@ export class HistoriaClinica implements OnInit {
     console.log(' HistoriaClinica: ngOnInit iniciado');
     await this.verificarPaciente();
     if (this.currentUser) {
-      console.log('✅ Usuario verificado como paciente:', this.currentUser.nombre);
+      console.log(' Usuario verificado como paciente:', this.currentUser.nombre);
       await Promise.all([
         this.cargarEspecialidades(),
         this.cargarTurnos()
       ]);
     } else {
-      console.log('❌ No hay usuario actual');
+      console.log(' No hay usuario actual');
     }
   }
 
@@ -75,11 +75,11 @@ export class HistoriaClinica implements OnInit {
 
   async cargarTurnos() {
     if (!this.currentUser) {
-      console.log('❌ No hay usuario para cargar turnos');
+      console.log(' No hay usuario para cargar turnos');
       return;
     }
 
-    console.log('📥 Cargando turnos para paciente:', this.currentUser.id);
+    console.log(' Cargando turnos para paciente:', this.currentUser.id);
     this.loading = true;
     try {
       const { data, error } = await this.supabaseService.getTurnosRealizadosPaciente(
@@ -87,7 +87,7 @@ export class HistoriaClinica implements OnInit {
         this.especialidadSeleccionada || undefined
       );
 
-      console.log('📦 Respuesta de turnos:', { 
+      console.log(' Respuesta de turnos:', { 
         tieneData: !!data, 
         cantidad: data?.length || 0, 
         tieneError: !!error,
@@ -102,12 +102,12 @@ export class HistoriaClinica implements OnInit {
       this.turnos = (data as TurnoConDetalles[]) || [];
       this.turnosFiltrados = this.turnos;
       
-      console.log(`✅ Turnos cargados: ${this.turnos.length}`);
+      console.log(` Turnos cargados: ${this.turnos.length}`);
       if (this.turnos.length > 0) {
         console.log('📝 Primer turno:', this.turnos[0]);
       }
     } catch (error) {
-      console.error('❌ Error cargando turnos:', error);
+      console.error(' Error cargando turnos:', error);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -121,14 +121,13 @@ export class HistoriaClinica implements OnInit {
   }
 
   async onEspecialidadChange() {
-    console.log('🔄 Cambio de especialidad:', this.especialidadSeleccionada);
+    console.log(' Cambio de especialidad:', this.especialidadSeleccionada);
     await this.cargarTurnos();
   }
 
 
   cargarImagenBase64(url: string): Promise<string> {
   
-  // 3. Agregamos '<string>' al constructor de la Promesa para que sepa que devuelve texto
   return new Promise<string>((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
@@ -141,15 +140,13 @@ export class HistoriaClinica implements OnInit {
         const ctx = canvas.getContext('2d');
         
         if (!ctx) {
-             // Rechazamos con un error tipado si falla el contexto
              reject(new Error("No se pudo obtener el contexto 2D del canvas."));
              return;
         }
         
         ctx.drawImage(img, 0, 0);
-        const base64Data = canvas.toDataURL('/assets/farmacia.png'); 
+        const base64Data = canvas.toDataURL('/assets/favicon.png'); 
         
-        // Aquí resolvemos con el string
         resolve(base64Data);
       } catch (error) {
         reject(error);
@@ -165,26 +162,22 @@ export class HistoriaClinica implements OnInit {
 }
 
  async descargarPDF() {
-    console.log('📄 Iniciando descarga de PDF...');
+    console.log(' Iniciando descarga de PDF...');
     if (!this.currentUser) {
-      console.log('❌ No hay usuario para generar PDF');
+      console.log(' No hay usuario para generar PDF');
       return;
     }
 
-    // ===============================================
-    // 💡 PASO 1: CARGAR EL LOGO DE FORMA ASÍNCRONA
-    // ===============================================
+    
     let logoBase64: string | null = null;
     try {
-        // Espera a que la imagen se cargue y se convierta a Base64
-        // ASUME que el archivo es 'favicon.png' en la raíz de /public
-        logoBase64 = await this.cargarImagenBase64('/clinica-online/assets/farmacia.png');
-        console.log('✅ Logo cargado con éxito.');
+       
+        logoBase64 = await this.cargarImagenBase64('/assets/favicon.png');
+        console.log(' Logo cargado con éxito.');
     } catch (e) {
-        console.warn('⚠️ No se pudo cargar el logo, se continuará sin él.');
-        // No detenemos el flujo si la imagen falla
+        console.warn(' No se pudo cargar el logo, se continuará sin él.');
     }
-    // ===============================================
+
 
     try {
       Swal.fire({
@@ -206,34 +199,28 @@ export class HistoriaClinica implements OnInit {
       const pageHeight = pdf.internal.pageSize.getHeight();
       let yPos = 20;
 
-      // ===============================================
-      // 💡 PASO 2: USAR LA IMAGEN CARGADA
-      // ===============================================
+     
       if (logoBase64) {
           const logoWidth = 30; 
           const logoHeight = 30;
-          const xPosLogo = pageWidth / 2 - logoWidth / 2; // Centrar logo
+          const xPosLogo = pageWidth / 2 - logoWidth / 2; 
           
           pdf.addImage(
               logoBase64, 
-              'PNG', // Formato (ajustar si es diferente)
+              'PNG', 
               xPosLogo, 
               yPos, 
               logoWidth, 
               logoHeight
           ); 
-          // Mover la posición Y después del logo
           yPos += logoHeight + 5; 
       }
-      // ===============================================
-
-      // Título
+ 
       pdf.setFontSize(18);
       pdf.setTextColor(0, 0, 0);
       pdf.text('Historia Clínica', pageWidth / 2, yPos, { align: 'center' });
       yPos += 10;
 
-      // Fecha de emisión
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
       const fechaEmision = new Date().toLocaleDateString('es-AR', {
@@ -246,7 +233,6 @@ export class HistoriaClinica implements OnInit {
       pdf.text(`Fecha de emisión: ${fechaEmision}`, pageWidth / 2, yPos, { align: 'center' });
       yPos += 15;
 
-      // Datos del paciente
       pdf.setFontSize(12);
       pdf.setTextColor(0, 0, 0);
       pdf.text(`Paciente: ${this.currentUser.nombre} ${this.currentUser.apellido}`, 20, yPos);
@@ -259,9 +245,7 @@ export class HistoriaClinica implements OnInit {
       }
       yPos += 5;
 
-      // Filtro de especialidad si aplica
       if (this.especialidadSeleccionada) {
-        // ... (El resto del código del filtro sigue igual)
         const especialidad = this.especialidades.find(e => e.id === this.especialidadSeleccionada);
         pdf.setFontSize(10);
         pdf.setTextColor(100, 100, 100);
@@ -269,12 +253,10 @@ export class HistoriaClinica implements OnInit {
         yPos += 10;
       }
 
-      // Línea separadora
       pdf.setDrawColor(0, 119, 182);
       pdf.line(20, yPos, pageWidth - 20, yPos);
       yPos += 10;
 
-      // Turnos
       if (!turnos || turnos.length === 0) {
         pdf.setFontSize(12);
         pdf.setTextColor(100, 100, 100);
@@ -286,7 +268,6 @@ export class HistoriaClinica implements OnInit {
         yPos += 10;
 
         turnos.forEach((turno: any, index: number) => {
-          // Verificar si necesitamos nueva página
           if (yPos > pageHeight - 40) {
             pdf.addPage();
             yPos = 20;
@@ -322,7 +303,6 @@ export class HistoriaClinica implements OnInit {
         });
       }
 
-      // Guardar PDF
       const nombreArchivo = `HistoriaClinica_${this.currentUser.nombre}_${this.currentUser.apellido}_${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(nombreArchivo);
 
@@ -334,7 +314,6 @@ export class HistoriaClinica implements OnInit {
         showConfirmButton: false
       });
     } catch (error: any) {
-      // Si falla cualquier cosa DESPUÉS de cargar la imagen (ej: Supabase o jsPDF)
       console.error('Error generando PDF:', error);
       Swal.fire({
         icon: 'error',

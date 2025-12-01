@@ -81,4 +81,8 @@ export class Home implements OnInit {
   irAHistoriaClinica() {
     this.router.navigate(['/historia-clinica']);
   }
+
+  irDashboardAdmin() {
+    this.router.navigate(['/admin-dashboard']);
+  }
 }
